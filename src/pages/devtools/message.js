@@ -13,12 +13,13 @@
 
     var $supplyList = $('#supply-list');
     var $supplyItem = $supplyList.find('.supply-item').first().clone();
+    var $searchSupplies = $("#search-supplies");
+    var $supplyCategories = $('#supply-categories');
+    var $firstCategory = $supplyCategories.children('.active');
+    var $currCategory = $firstCategory;
+
     $supplyList.find('.supply-item').first().remove();
-    $searchSupplies = $("#search-supplies");
-    $supplyCategories = $('#supply-categories');
-    $firstCategory = $supplyCategories.children('.active');
-    $currCategory = $firstCategory;
-    $('#supply-categories > li > a').click(function () {
+    $supplyCategories.find('a').click(function () {
         if ($(this).data('category') !== 'all') {
             search = '';
             $searchSupplies.val('');
@@ -29,9 +30,7 @@
 
     $('.tooltip-down').tooltip();
 
-    var $raidsPanel = $('#raids-panel');
     var $dailyRaidList = $('#daily-raid-list');
-    var $completedRaidList = $('#completed-raid-list');
     var $dailyRaid = $dailyRaidList.find('.daily-quest-panel').first().clone();
     $dailyRaidList.find('.daily-quest-panel').first().remove();
     var $dailyRaidBig = $dailyRaidList.find('.daily-quest-panel').first().clone();
@@ -42,16 +41,14 @@
     $dailyDistinctionList.find('.casino-div').first().remove();
 
     var $questCharactersPanel = $('#quest-characters-panel');
-    var $questCharacter = $('#quest-character').clone();
-    $('#quest-character').remove();
+    var $questCharacterOrig = $('#quest-character').clone();
+    var $questCharacter = $questCharacterOrig.clone();
+    $questCharacterOrig.remove();
 
     var $questEnemiesPanel = $('#quest-enemies-panel');
-    var $questEnemy = $('#quest-enemy').clone();
-    $('#quest-enemy').remove();
-
-    var $buffsPanel = $('#quest-buffs-panel');
-    var $questBuff = $('#quest-buff').clone();
-    $('#quest-buff').remove();
+    var $questEnemyOrig = $('#quest-enemy').clone();
+    var $questEnemy = $questEnemyOrig.clone();
+    $questEnemyOrig.remove();
 
     var $weaponPlanner = $('#weapon-planner-container');
     var $weaponType = $('#weapon-type-container');
@@ -70,15 +67,16 @@
         resetDropdowns();
     });
 
+    var $contents = $('$contents');
 
-    $('#contents').find('.open-url').each(function () {
+    $contents.find('.open-url').each(function () {
         $(this).click(function () {
             if ($(this).data('url') !== undefined && $(this).data('url') !== '') {
                 Message.Post({'openURL': url + $(this).data('url')});
             }
         });
     });
-    $('#contents').find('.copy-url').each(function () {
+    $contents.find('.copy-url').each(function () {
         $(this).click(function () {
             if ($(this).data('url') !== undefined && $(this).data('url') !== '') {
                 copy($(this).data('url'));
@@ -271,7 +269,7 @@
         input.remove();
     };
 
-    backgroundPageConnection.onMessage.addListener(function (message, sender) {
+    backgroundPageConnection.onMessage.addListener(function (message) {
         if (message.pageLoad) {
             if (!initialized && message.pageLoad.indexOf('#mypage') !== -1) {
                 initialized = true;
@@ -335,7 +333,7 @@
             }
             $('#wait').hide();
             if (themeName !== 'Vira' && themeName !== 'Narumaya') {
-                $('#contents').show();
+                $contents.show();
             }
         }
         if (message.setText) {
@@ -540,7 +538,8 @@
         jQueryCache[id].attr('title', text)
             .tooltip('fixTitle');
         console.log(id.substring(1));
-        if ($('.tooltip').length > 0 && $('.tooltip').prev().prop("id") == id.substring(1)) {
+        var $tooltip = $('.tooltip');
+        if ($tooltip.length > 0 && $tooltip.prev().prop("id") == id.substring(1)) {
             jQueryCache[id].tooltip('show');
         }
         //.tooltip('show');
@@ -622,12 +621,12 @@
         }
     };
 
-    var $plannerItem = $('.weapon-item').first().clone();
-    $('.weapon-item').remove();
+    var $plannerItemOrig = $('.weapon-item');
+    var $plannerItem = $plannerItemOrig.first().clone();
+    $plannerItemOrig.remove();
+
     var $plannerIncompleteList = $('#weapon-item-incomplete');
     var $plannerCompleteList = $('#weapon-item-complete');
-    var incompleteActiveCount = 0;
-    var completeActiveCount = 0;
 
     var generatePlanner = function (planner) {
         var incompleteCount = 0;
@@ -890,7 +889,7 @@
 
     var filterSupplies = function (category) {
         filter = category;
-        $supplyList.children().each(function (index) {
+        $supplyList.children().each(function () {
             if (category === $(this).data('category') || category === 'all') {
                 $(this).show();
             } else {
@@ -900,7 +899,7 @@
     };
     var searchSupplies = function (query) {
         search = query.toLowerCase();
-        $supplyList.children().each(function (index) {
+        $supplyList.children().each(function () {
             if ($(this).data('name').indexOf(search) !== -1) {
                 $(this).show();
             } else {
@@ -908,11 +907,13 @@
             }
         });
     };
+    /*
     var hideAllSupplies = function () {
-        $supplyList.children().each(function (index) {
+        $supplyList.children().each(function () {
             $(this).hide();
         });
     };
+    //*/
     var toggleTimes = function () {
         Object.keys(times).forEach(function (key) {
             if (isJST) {
@@ -948,16 +949,16 @@
             $("rect[id='mask-fill']").css("fill", "#f5f5f5");
         }
         if (theme === 'Vira' || theme === 'Narumaya') {
-            $('#contents').hide();
+            $contents.hide();
             $('#wait').hide();
             $('#garbage').show();
         } else {
             $('#garbage').hide();
             if (initialized) {
-                $('#contents').show();
+                $contents.show();
                 $('#wait').hide();
             } else {
-                $('#contents').hide();
+                $contents.hide();
                 $('#wait').show();
             }
         }
