@@ -629,7 +629,10 @@
     var incompleteActiveCount = 0;
     var completeActiveCount = 0;
 
+    /** @deprecated */
     var generatePlanner = function (planner) {
+        if (true) return; // todo: disabled for now
+
         var incompleteCount = 0;
         var completeCount = 0;
         var $incompleteItems = $plannerIncompleteList.children('.weapon-item');
@@ -739,7 +742,10 @@
             .tooltip('fixTitle')
     }
 
+    /** @deprecated */
     var setPlannerItemAmount = function (id, sequence, current) {
+        if (true) return; // todo: disabled for now
+
         var $item = $('#planner-' + sequence + '-' + id);
         if ($item.length > 0) {
             var $current = $item.find('#planner-' + sequence + '-' + id + '-current');
@@ -760,7 +766,11 @@
             //$list.sort(sortPlanner);
         }
     }
+
+    /** @deprecated */
     var setPlannerDropdowns = function (type, build) {
+        if (true) return; // todo: disabled for now
+
         dropdownLocater['planner'].find('.dropdown-text').text(type);
         initializeDropdowns(type);
         weaponType = type;
