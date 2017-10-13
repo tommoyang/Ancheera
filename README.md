@@ -1,6 +1,6 @@
-# Ancheera
+# Mahira - Forked from https://github.com/Thessiah/Ancheera
 
-A Granblue Fantasy companion Chrome extension.
+A Granblue Fantasy companion Chrome extension. Now cleaner and with Less JS &trade;
 
 # Development
 
