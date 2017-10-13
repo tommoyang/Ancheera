@@ -1,5 +1,7 @@
 (function () {
     chrome.devtools.network.onRequestFinished.addListener(function (request) {
+        if (typeof window.Message === 'undefined') return; // Required for anything
+
         if (request.request.url.indexOf('.css') !== -1 && request.request.url.indexOf('/css/common/index.css') === -1) {
             Message.Post({pageLoad: true});
         }
