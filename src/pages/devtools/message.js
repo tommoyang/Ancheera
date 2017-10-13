@@ -67,7 +67,7 @@
         resetDropdowns();
     });
 
-    var $contents = $('$contents');
+    var $contents = $('#contents');
 
     $contents.find('.open-url').each(function () {
         $(this).click(function () {
