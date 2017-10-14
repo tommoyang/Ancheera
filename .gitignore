@@ -51,3 +51,6 @@ src/.sass-cache
 
 # Ignore IDEA shit
 .idea
+
+# IDE stuff
+jsconfig.json
