@@ -12,9 +12,6 @@
     var isDefenseOrder = false;
     var nextDefenseOrder = null;
 
-    var isAngelHalo = false;
-    var nextAngelHalo = null;
-
     var timeZone;
 
     var anchiraSun = '#f8e5be';
@@ -28,8 +25,6 @@
         'monthly': 0,
         'assault-0': -1,
         'assault-1': -1,
-        'angel-active': false,
-        'angel-time': null,
         'defense-active': false,
         'defense-time': null
     };
@@ -39,7 +34,6 @@
         'weekly-time': null,
         'monthly-time': null,
         'assault-time': null,
-        'angel-time': null,
         'defense-time': null,
     };
 
@@ -51,7 +45,6 @@
         'monthly-date': null,
         'assault-date-0': null,
         'assault-date-1': null,
-        'angel-date': null,
         'defense-date': null
     };
 
@@ -63,7 +56,6 @@
         'monthly-date': null,
         'assault-date-0': null,
         'assault-date-1': null,
-        'angel-date': null,
         'defense-date': null
     };
 
@@ -72,7 +64,6 @@
         'is-weekly': false,
         'is-monthly': false,
         'is-assault': false,
-        'is-angel': false,
         'is-defense': false
     }
 
@@ -88,8 +79,6 @@
                     weeklyReset = new Date(time.weekly);
                     monthlyReset = new Date(time.monthly);
                     assaultTimes = [time['assault-0'], time['assault-1']];
-                    isAngelHalo = time['angel-active'];
-                    nextAngelHalo = new Date(time['angel-time']);
                     isDefenseOrder = time['defense-active'];
                     nextDefenseOrder = new Date(time['defense-time']);
                 } else {
@@ -275,34 +264,6 @@
         });
     }
 
-    var newAngelTime = function (delta) {
-        var tuples = {};
-        if (delta !== -1) {
-            nextAngelHalo = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours() + delta, 0, 0, 0);
-            tuples['angel-active'] = isAngelHalo;
-            tuples['angel-time'] = Date.parse(nextAngelHalo);
-        } else {
-            isAngelHalo = false;
-            nextAngelHalo = null;
-            tuples['angel-active'] = false;
-            tuples['angel-time'] = null;
-        }
-        storeTime(tuples);
-    }
-
-    var checkAngelTime = function () {
-        if (nextAngelHalo !== null && Date.parse(date) >= Date.parse(nextAngelHalo)) {
-            if (!isAngelHalo && Date.parse(date) < Date.parse(nextAngelHalo) + 3600000) {
-                isAngelHalo = true;
-                newAngelTime(1);
-                return true;
-            } else {
-                newAngelTime(-1);
-            }
-        }
-        return false;
-    }
-
     var newDefenseTime = function (delta) {
         var tuples = {};
         if (delta !== -1) {
@@ -337,9 +298,6 @@
             populateNextAssaultTime();
         } else if (Date.parse(date) >= Date.parse(nextAssaultTime) + 3600000) {
             populateNextAssaultTime();
-        }
-        if (checkAngelTime()) {
-            Message.Notify('Angel Halo has begun!', '', 'angelHaloNotifications');
         }
         if (checkDefenseOrder()) {
             Message.Notify('Defense Order has begun!', '', 'defenseOrderNotifications');
@@ -406,18 +364,6 @@
             setTime('is-assault', false);
             setTime('assault-time', '???');
         }
-        if (nextAngelHalo !== null) {
-            if (isAngelHalo) {
-                setTime('is-angel', true);
-            } else {
-                setTime('is-angel', false);
-            }
-            str = Time.ParseTime(Math.abs(nextAngelHalo - date), 'd');
-            setTime('angel-time', str);
-        } else {
-            setTime('is-angel', false);
-            setTime('angel-time', '???');
-        }
         if (nextDefenseOrder !== null) {
             if (isDefenseOrder) {
                 setTime('is-defense', true);
@@ -480,15 +426,6 @@
         date.setMinutes(date.getMinutes() - offset);
         populateAndPostJstAndNormalTimeMessage('date', str, str3);
         populateAndPostJstAndNormalTimeMessage('time', str2, str4);
-        if (nextAngelHalo !== null) {
-            str = TimeHelper.parseDate(nextAngelHalo);
-            nextAngelHalo.setMinutes(nextAngelHalo.getMinutes() + offset);
-            str2 = TimeHelper.parseDate(nextAngelHalo);
-            nextAngelHalo.setMinutes(nextAngelHalo.getMinutes() - offset);
-            populateAndPostJstAndNormalTimeMessage('angel-date', str, str2);
-        } else {
-            populateAndPostJstAndNormalTimeMessage('angel-date', '', '');
-        }
         if (nextDefenseOrder !== null) {
             str = TimeHelper.parseDate(nextDefenseOrder);
             nextDefenseOrder.setMinutes(nextDefenseOrder.getMinutes() + offset);
