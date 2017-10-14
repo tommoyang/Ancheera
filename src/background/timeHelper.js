@@ -1,7 +1,3 @@
-window.TimeHelper = {
-    parseDate: parseDate
-};
-
 var parseDate = function (date) {
     if (date === null) {
         return '';
@@ -59,3 +55,7 @@ var parseDate = function (date) {
     }
     return str;
 }
+
+window.TimeHelper = {
+    parseDate: parseDate
+};

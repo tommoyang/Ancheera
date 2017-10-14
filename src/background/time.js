@@ -34,7 +34,7 @@
         'defense-time': null
     };
 
-    var times = {
+    var timesTill = {
         'daily-time': null,
         'weekly-time': null,
         'monthly-time': null,
@@ -67,7 +67,7 @@
         'defense-date': null
     };
 
-    var isTimes = {
+    var isActiveTimes = {
         'is-daily': false,
         'is-weekly': false,
         'is-monthly': false,
@@ -124,16 +124,16 @@
         },
         InitializeDev: function () {
             var response = [];
-            Object.keys(times).forEach(function (key) {
-                response.push(getJquery(key));
+            Object.keys(timesTill).forEach(function (key) {
+                response.push(createCategoryMessage(key));
             });
             Object.keys(jstTimes).forEach(function (key) {
-                response.push(getJquery(key));
+                response.push(createCategoryMessage(key));
             });
-            Object.keys(isTimes).forEach(function (key) {
-                response.push(getJquery(key));
+            Object.keys(isActiveTimes).forEach(function (key) {
+                response.push(createCategoryMessage(key));
             });
-            setTimeZone();
+            postSetTimeZoneMessage();
             return response;
         },
         SetAssaultTime: function (hours) {
@@ -198,8 +198,8 @@
             return str;
         },
         UpdateAlertColor() {
-            Object.keys(isTimes).forEach(function (key) {
-                Message.PostAll(getJquery(key));
+            Object.keys(isActiveTimes).forEach(function (key) {
+                Message.PostAll(createCategoryMessage(key));
             });
         }
     }
@@ -238,7 +238,7 @@
             timeZone += temp[i][0];
         }
         if (timeZone !== curr) {
-            setTimeZone();
+            postSetTimeZoneMessage();
         }
         date.setMinutes(date.getMinutes() + date.getTimezoneOffset() + 540);
         setDate();
@@ -274,7 +274,7 @@
             'monthly': Date.parse(monthlyReset)
         });
     }
-    
+
     var newAngelTime = function (delta) {
         var tuples = {};
         if (delta !== -1) {
@@ -478,50 +478,50 @@
             str4 += 'PM';
         }
         date.setMinutes(date.getMinutes() - offset);
-        setJSTNormal('date', str, str3);
-        setJSTNormal('time', str2, str4);
+        populateAndPostJstAndNormalTimeMessage('date', str, str3);
+        populateAndPostJstAndNormalTimeMessage('time', str2, str4);
         if (nextAngelHalo !== null) {
             str = TimeHelper.parseDate(nextAngelHalo);
             nextAngelHalo.setMinutes(nextAngelHalo.getMinutes() + offset);
             str2 = TimeHelper.parseDate(nextAngelHalo);
             nextAngelHalo.setMinutes(nextAngelHalo.getMinutes() - offset);
-            setJSTNormal('angel-date', str, str2);
+            populateAndPostJstAndNormalTimeMessage('angel-date', str, str2);
         } else {
-            setJSTNormal('angel-date', '', '');
+            populateAndPostJstAndNormalTimeMessage('angel-date', '', '');
         }
         if (nextDefenseOrder !== null) {
             str = TimeHelper.parseDate(nextDefenseOrder);
             nextDefenseOrder.setMinutes(nextDefenseOrder.getMinutes() + offset);
             str2 = TimeHelper.parseDate(nextDefenseOrder);
             nextDefenseOrder.setMinutes(nextDefenseOrder.getMinutes() - offset);
-            setJSTNormal('defense-date', str, str2);
+            populateAndPostJstAndNormalTimeMessage('defense-date', str, str2);
         } else {
-            setJSTNormal('defense-date', '', '');
+            populateAndPostJstAndNormalTimeMessage('defense-date', '', '');
         }
         str = TimeHelper.parseDate(dailyReset);
         dailyReset.setMinutes(dailyReset.getMinutes() + offset);
         str2 = TimeHelper.parseDate(dailyReset);
         dailyReset.setMinutes(dailyReset.getMinutes() - offset);
-        setJSTNormal('daily-date', str, str2);
+        populateAndPostJstAndNormalTimeMessage('daily-date', str, str2);
         str = TimeHelper.parseDate(dailyReset);
         dailyReset.setMinutes(dailyReset.getMinutes() + offset);
         str2 = TimeHelper.parseDate(dailyReset);
         dailyReset.setMinutes(dailyReset.getMinutes() - offset);
-        setJSTNormal('weekly-date', str, str2);
+        populateAndPostJstAndNormalTimeMessage('weekly-date', str, str2);
         str = TimeHelper.parseDate(monthlyReset);
         monthlyReset.setMinutes(monthlyReset.getMinutes() + offset);
         str2 = TimeHelper.parseDate(monthlyReset);
         monthlyReset.setMinutes(monthlyReset.getMinutes() - offset);
-        setJSTNormal('monthly-date', str, str2);
+        populateAndPostJstAndNormalTimeMessage('monthly-date', str, str2);
     }
 
     var setTime = function (category, value) {
-        if (times[category] !== undefined && times[category] !== value) {
-            times[category] = value;
-            Message.PostAll(getJquery(category));
-        } else if (isTimes[category] !== undefined && isTimes[category] !== value) {
-            isTimes[category] = value;
-            Message.PostAll(getJquery(category));
+        if (timesTill[category] !== undefined && timesTill[category] !== value) {
+            timesTill[category] = value;
+            Message.PostAll(createCategoryMessage(category));
+        } else if (isActiveTimes[category] !== undefined && isActiveTimes[category] !== value) {
+            isActiveTimes[category] = value;
+            Message.PostAll(createCategoryMessage(category));
         }
     }
 
@@ -538,26 +538,26 @@
         }
     }
 
-    var setJSTNormal = function (category, jstValue, normalValue) {
+    var populateAndPostJstAndNormalTimeMessage = function (category, jstValue, normalValue) {
         if (jstTimes[category] !== undefined && normalTimes[category] !== undefined && jstTimes[category] !== jstValue) {
             jstTimes[category] = jstValue;
             normalTimes[category] = normalValue;
-            Message.PostAll(getJquery(category));
+            Message.PostAll(createCategoryMessage(category));
         }
     }
 
-    var setTimeZone = function () {
+    var postSetTimeZoneMessage = function () {
         Message.PostAll({
             setTimeZone: timeZone
         });
     }
 
-    var getJquery = function (category) {
-        if (times[category] !== undefined) {
+    var createCategoryMessage = function (category) {
+        if (timesTill[category] !== undefined) {
             return {
                 setText: {
                     'id': '#time-' + category,
-                    'value': times[category]
+                    'value': timesTill[category]
                 }
             };
         } else if (jstTimes[category] !== undefined) {
@@ -568,7 +568,7 @@
                     'normal': normalTimes[category]
                 }
             };
-        } else if (isTimes[category] !== undefined) {
+        } else if (isActiveTimes[category] !== undefined) {
             var alert = anchiraAlert;
             var sun = anchiraSun;
             var theme = Options.Get('windowTheme');
@@ -576,18 +576,18 @@
                 alert = nightAlert;
                 sun = nightSun;
             }
-            if (isTimes[category] === true) {
+            if (isActiveTimes[category] === true) {
                 return {
                     setColor: {
                         'id': '#time-' + category,
-                        'value': alert //alert
+                        'value': alert
                     }
                 };
-            } else if (isTimes[category] === false) {
+            } else if (isActiveTimes[category] === false) {
                 return {
                     setColor: {
                         'id': '#time-' + category,
-                        'value': sun //sun
+                        'value': sun
                     }
                 };
             }
@@ -663,7 +663,7 @@
                 } else {
                     str2 += '12PM';
                 }
-                setJSTNormal('assault-date-' + i, str, str2);
+                populateAndPostJstAndNormalTimeMessage('assault-date-' + i, str, str2);
             }
         }
     }
