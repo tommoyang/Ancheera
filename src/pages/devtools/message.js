@@ -13,12 +13,13 @@
 
     var $supplyList = $('#supply-list');
     var $supplyItem = $supplyList.find('.supply-item').first().clone();
+    var $searchSupplies = $("#search-supplies");
+    var $supplyCategories = $('#supply-categories');
+    var $firstCategory = $supplyCategories.children('.active');
+    var $currCategory = $firstCategory;
+
     $supplyList.find('.supply-item').first().remove();
-    $searchSupplies = $("#search-supplies");
-    $supplyCategories = $('#supply-categories');
-    $firstCategory = $supplyCategories.children('.active');
-    $currCategory = $firstCategory;
-    $('#supply-categories > li > a').click(function () {
+    $supplyCategories.find('a').click(function () {
         if ($(this).data('category') !== 'all') {
             search = '';
             $searchSupplies.val('');
@@ -29,9 +30,7 @@
 
     $('.tooltip-down').tooltip();
 
-    var $raidsPanel = $('#raids-panel');
     var $dailyRaidList = $('#daily-raid-list');
-    var $completedRaidList = $('#completed-raid-list');
     var $dailyRaid = $dailyRaidList.find('.daily-quest-panel').first().clone();
     $dailyRaidList.find('.daily-quest-panel').first().remove();
     var $dailyRaidBig = $dailyRaidList.find('.daily-quest-panel').first().clone();
@@ -42,16 +41,14 @@
     $dailyDistinctionList.find('.casino-div').first().remove();
 
     var $questCharactersPanel = $('#quest-characters-panel');
-    var $questCharacter = $('#quest-character').clone();
-    $('#quest-character').remove();
+    var $questCharacterOrig = $('#quest-character').clone();
+    var $questCharacter = $questCharacterOrig.clone();
+    $questCharacterOrig.remove();
 
     var $questEnemiesPanel = $('#quest-enemies-panel');
-    var $questEnemy = $('#quest-enemy').clone();
-    $('#quest-enemy').remove();
-
-    var $buffsPanel = $('#quest-buffs-panel');
-    var $questBuff = $('#quest-buff').clone();
-    $('#quest-buff').remove();
+    var $questEnemyOrig = $('#quest-enemy').clone();
+    var $questEnemy = $questEnemyOrig.clone();
+    $questEnemyOrig.remove();
 
     var $weaponPlanner = $('#weapon-planner-container');
     var $weaponType = $('#weapon-type-container');
@@ -70,15 +67,16 @@
         resetDropdowns();
     });
 
+    var $contents = $('#contents');
 
-    $('#contents').find('.open-url').each(function () {
+    $contents.find('.open-url').each(function () {
         $(this).click(function () {
             if ($(this).data('url') !== undefined && $(this).data('url') !== '') {
                 Message.Post({'openURL': url + $(this).data('url')});
             }
         });
     });
-    $('#contents').find('.copy-url').each(function () {
+    $contents.find('.copy-url').each(function () {
         $(this).click(function () {
             if ($(this).data('url') !== undefined && $(this).data('url') !== '') {
                 copy($(this).data('url'));
@@ -129,14 +127,14 @@
             'start': ['Silver Forge', 'Silver 4*', 'Gold Forge', 'Character 5*'],
             'end': ['Silver Forge', 'Silver 4*', 'Gold Forge', 'Character 5*']
         }
-    }
+    };
     var dropdownLocater = {
         'planner': $weaponPlanner,
         'type': $weaponType,
         'element': $weaponElement,
         'start': $weaponStart,
         'end': $weaponEnd
-    }
+    };
 
     var weaponBuild = {};
     var weaponType = '';
@@ -151,7 +149,7 @@
         $weaponElement.hide();
         $weaponStart.hide();
         $weaponEnd.hide();
-    }
+    };
     var initializeDropdowns = function (type) {
         Object.keys(dropdownHash[type]).forEach(function (key) {
             var values = dropdownHash[type][key];
@@ -165,7 +163,7 @@
                 }
             });
         });
-    }
+    };
     $('#weapon-planner-dropdown').find('a').each(function () {
         var $this = $(this);
         $this.click(function () {
@@ -193,7 +191,7 @@
                     } else {
                         weaponBuild[$this.data('weapon')] = $this.text();
                     }
-                    var keys = Object.keys(weaponBuild)
+                    var keys = Object.keys(weaponBuild);
                     for (var i = 0; i < keys.length; i++) {
                         if (weaponBuild[keys[i]] === null) {
                             return;
@@ -251,7 +249,7 @@
 
     var setMessage = function (msg) {
         $message.text(msg);
-    }
+    };
     setMessage(message);
 
     var backgroundPageConnection = chrome.runtime.connect({
@@ -269,9 +267,9 @@
         input.select();
         document.execCommand('Copy');
         input.remove();
-    }
+    };
 
-    backgroundPageConnection.onMessage.addListener(function (message, sender) {
+    backgroundPageConnection.onMessage.addListener(function (message) {
         if (message.pageLoad) {
             if (!initialized && message.pageLoad.indexOf('#mypage') !== -1) {
                 initialized = true;
@@ -335,7 +333,7 @@
             }
             $('#wait').hide();
             if (themeName !== 'Vira' && themeName !== 'Narumaya') {
-                $('#contents').show();
+                $contents.show();
             }
         }
         if (message.setText) {
@@ -433,25 +431,25 @@
         //   });
         // }
         //Message.Post({'consoleLog': 'new text of ' + id + ': ' + jQueryCache[id].text()});
-    }
+    };
     var setImage = function (id, value) {
         if (jQueryCache[id] === undefined) {
             jQueryCache[id] = $(id);
         }
         jQueryCache[id].attr('src', value);
-    }
+    };
     var setHeight = function (id, value) {
         if (jQueryCache[id] === undefined) {
             jQueryCache[id] = $(id);
         }
         jQueryCache[id].height(value);
-    }
+    };
     var setOpacity = function (id, value) {
         if (jQueryCache[id] === undefined) {
             jQueryCache[id] = $(id);
         }
         jQueryCache[id].fadeTo('fast', value);
-    }
+    };
     var hideObject = function (id, value) {
         if (jQueryCache[id] === undefined) {
             jQueryCache[id] = $(id);
@@ -461,7 +459,7 @@
         } else {
             jQueryCache[id].show();
         }
-    }
+    };
     var setBar = function (id, value) {
         // if(id !== '#bp-bar') {
         if (jQueryCache[id] === undefined) {
@@ -480,13 +478,13 @@
         //     }
         //   });
         // }
-    }
+    };
     var setColor = function (id, value) {
         if (jQueryCache[id] === undefined) {
             jQueryCache[id] = $(id);
         }
         jQueryCache[id].css('background-color', value);
-    }
+    };
     var setTime = function (id, jstTime, normalTime) {
         if (jQueryCache[id] === undefined) {
             jQueryCache[id] = $(id);
@@ -494,13 +492,13 @@
         times[id] = {
             'jst': jstTime,
             'normal': normalTime
-        }
+        };
         if (isJST) {
             jQueryCache[id].text(jstTime);
         } else {
             jQueryCache[id].text(normalTime);
         }
-    }
+    };
     var collapsePanel = function (id, value) {
         if (jQueryCache[id] === undefined) {
             jQueryCache[id] = $(id);
@@ -511,7 +509,7 @@
         } else if (!value && !jQueryCache[id].hasClass('collapse in')) {
             jQueryCache[id].collapse('show');
         }
-    }
+    };
     var appendObject = function (id, targetID) {
         if (jQueryCache[id] === undefined) {
             jQueryCache[id] = $(id);
@@ -521,7 +519,7 @@
         }
         //alert(id + ' ' + targetID);
         jQueryCache[targetID].append(jQueryCache[id]);
-    }
+    };
     var setClick = function (id, value) {
         if (jQueryCache[id] === undefined) {
             jQueryCache[id] = $(id);
@@ -532,20 +530,21 @@
         } else {
             jQueryCache[id].removeClass('open-url');
         }
-    }
+    };
     var setTooltip = function (id, text) {
         if (jQueryCache[id] === undefined) {
             jQueryCache[id] = $(id);
         }
         jQueryCache[id].attr('title', text)
-            .tooltip('fixTitle')
+            .tooltip('fixTitle');
         console.log(id.substring(1));
-        if ($('.tooltip').length > 0 && $('.tooltip').prev().prop("id") == id.substring(1)) {
+        var $tooltip = $('.tooltip');
+        if ($tooltip.length > 0 && $tooltip.prev().prop("id") == id.substring(1)) {
             jQueryCache[id].tooltip('show');
         }
         //.tooltip('show');
         //jQueryCache[id].prop('title', text);
-    }
+    };
     var beforeObject = function (id, targetID) {
         if (jQueryCache[id] === undefined) {
             jQueryCache[id] = $(id);
@@ -554,7 +553,7 @@
             jQueryCache[targetID] = $(targetID);
         }
         jQueryCache[targetID].before(jQueryCache[id]);
-    }
+    };
     var addItem = function (id, category, number, name, sequence, tooltip) {
         var newItem = $supplyItem.clone();
         newItem.attr('id', 'supply-' + sequence + '-' + id);
@@ -595,7 +594,7 @@
         newItem.tooltip();
         //alert(3);
         //if(sortedSupplies.length > 0) {
-        var low = 0
+        var low = 0;
         var high = sortedSupplies.length;
         while (low < high) {
             var mid = low + high >>> 1;
@@ -620,14 +619,14 @@
                 'id': parseInt(id)
             });
         }
-    }
+    };
 
-    var $plannerItem = $('.weapon-item').first().clone();
-    $('.weapon-item').remove();
+    var $plannerItemOrig = $('.weapon-item');
+    var $plannerItem = $plannerItemOrig.first().clone();
+    $plannerItemOrig.remove();
+
     var $plannerIncompleteList = $('#weapon-item-incomplete');
     var $plannerCompleteList = $('#weapon-item-complete');
-    var incompleteActiveCount = 0;
-    var completeActiveCount = 0;
 
     /** @deprecated */
     var generatePlanner = function (planner) {
@@ -684,7 +683,7 @@
             } else {
                 return false;
             }
-        })
+        });
         $($completeItems.get().reverse()).each(function (i) {
             if ($completeItems.length - 1 - i >= completeCount) {
                 $(this).hide();
@@ -697,16 +696,16 @@
         //   key.hide();
         //   completePlannersList.pop();
         // }
-    }
+    };
     var addPlannerItem = function ($list, id, category, current, total, sequence, tooltip) {
         var newItem = $plannerItem.clone();
         setPlannerItem(newItem, id, category, current, total, sequence, tooltip);
         $list.append(newItem);
-    }
+    };
     var updatePlannerItem = function ($item, id, category, current, total, sequence, tooltip) {
         $item.show();
         setPlannerItem($item, id, category, current, total, sequence, tooltip);
-    }
+    };
 
     var setPlannerItem = function ($item, id, category, current, total, sequence, tooltip) {
         $item.attr('id', 'planner-' + sequence + '-' + id);
@@ -740,7 +739,7 @@
         $item.tooltip('hide')
             .attr('data-original-title', tooltip)
             .tooltip('fixTitle')
-    }
+    };
 
     /** @deprecated */
     var setPlannerItemAmount = function (id, sequence, current) {
@@ -765,7 +764,7 @@
             // }
             //$list.sort(sortPlanner);
         }
-    }
+    };
 
     /** @deprecated */
     var setPlannerDropdowns = function (type, build) {
@@ -783,11 +782,11 @@
                 dropdownLocater[key].find('.dropdown-text').text(build[key]);
             }
         });
-    }
+    };
     var clearPlanner = function () {
         $plannerIncompleteList.children('.weapon-item').hide();
         $plannerCompleteList.children('.weapon-item').hide();
-    }
+    };
     var truncateNumber = function (value) {
         if (value >= 1000000) {
             return Math.round(value / 100000) + 'M';
@@ -795,7 +794,7 @@
             return Math.round(value / 1000) + 'k';
         }
         return value;
-    }
+    };
     var sortPlanner = function (a, b) {
         var $a = $(a);
         var $b = $(b);
@@ -814,10 +813,10 @@
                 draw: 8,
                 other: 9,
                 currency: 10
-            }
+            };
             return categoryHash[$a.data('category')] - categoryHash[$b.data('category')];
         }
-    }
+    };
     var addQuest = function (id, imgUrl, name, amount, max, animeIDs, animeAmounts) {
         var newRaid;
         if (animeIDs !== null && animeIDs.length > 1) {
@@ -829,7 +828,7 @@
             });
         } else {
             newRaid = $dailyRaid.clone();
-            var raidUrl = url + '#quest/supporter/' + id + '/1'
+            var raidUrl = url + '#quest/supporter/' + id + '/1';
             if (animeIDs !== null) {
                 raidUrl += '/0/' + animeIDs[0];
             }
@@ -861,7 +860,7 @@
             // });
         }
         $dailyRaidList.append(newRaid);
-    }
+    };
     var addDistinction = function (id, amount, max, isEnabled) {
         var newDistinction = $dailyDistinction.clone();
         newDistinction.data('id', id);
@@ -875,7 +874,7 @@
             newDistinction.hide();
         }
         //Message.Post({'consoleLog': 'added distinction text with id ' + newDistinction.find('.item-count').first().attr('id')});
-    }
+    };
 
     var addQuestCharacter = function (index) {
         var newCharacter = $questCharacter.clone();
@@ -888,7 +887,7 @@
         });
         newCharacter.find('.quest-character-buffs').attr('id', 'quest-character-buffs-' + index);
         $questCharactersPanel.append(newCharacter);
-    }
+    };
 
     var addQuestEnemy = function (index) {
         var newEnemy = $questEnemy.clone();
@@ -896,33 +895,35 @@
         newEnemy.find('.quest-enemy-image').attr('id', 'quest-enemy-image-' + index);
         newEnemy.find('.quest-enemy-buffs').attr('id', 'quest-enemy-buffs-' + index);
         $questEnemiesPanel.append(newEnemy);
-    }
+    };
 
     var filterSupplies = function (category) {
         filter = category;
-        $supplyList.children().each(function (index) {
+        $supplyList.children().each(function () {
             if (category === $(this).data('category') || category === 'all') {
                 $(this).show();
             } else {
                 $(this).hide();
             }
         });
-    }
+    };
     var searchSupplies = function (query) {
         search = query.toLowerCase();
-        $supplyList.children().each(function (index) {
+        $supplyList.children().each(function () {
             if ($(this).data('name').indexOf(search) !== -1) {
                 $(this).show();
             } else {
                 $(this).hide();
             }
         });
-    }
+    };
+    /*
     var hideAllSupplies = function () {
-        $supplyList.children().each(function (index) {
+        $supplyList.children().each(function () {
             $(this).hide();
         });
-    }
+    };
+    //*/
     var toggleTimes = function () {
         Object.keys(times).forEach(function (key) {
             if (isJST) {
@@ -931,7 +932,7 @@
                 jQueryCache[key].text(times[key].normal);
             }
         });
-    }
+    };
     var setTheme = function (theme) {
         //../../stylesheets/default.css
         Message.Post({'consoleLog': theme});
@@ -958,34 +959,35 @@
             $("rect[id='mask-fill']").css("fill", "#f5f5f5");
         }
         if (theme === 'Vira' || theme === 'Narumaya') {
-            $('#contents').hide();
+            $contents.hide();
             $('#wait').hide();
             $('#garbage').show();
         } else {
             $('#garbage').hide();
             if (initialized) {
-                $('#contents').show();
+                $contents.show();
                 $('#wait').hide();
             } else {
-                $('#contents').hide();
+                $contents.hide();
                 $('#wait').show();
             }
         }
         sheetURL += '.css';
         document.getElementById('pagestyle').setAttribute('href', sheetURL);
         themeName = theme;
-    }
-
+    };
 
     window.Message = {
         Post: function (message) {
+            if (typeof backgroundPageConnection === 'undefined') return; // Can't do shit without this either
+
             message.id = chrome.devtools.inspectedWindow.tabId;
             backgroundPageConnection.postMessage(message);
         },
         Copy: function (str) {
             copy(str);
         }
-    }
+    };
 
     Message.Post({'devAwake': true});
 
