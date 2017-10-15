@@ -103,9 +103,6 @@
             if (msg.assault) {
                 Time.SetAssaultTime(msg.assault.times);
             }
-            if (msg.angel) {
-                Time.SetAngelHalo(msg.angel.delta, msg.angel.active);
-            }
             if (msg.defense) {
                 Time.SetDefenseOrder(msg.defense.time, msg.defense.active);
             }
