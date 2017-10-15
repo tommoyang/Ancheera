@@ -33,6 +33,7 @@
       "src/background/casino.js",
       "src/background/profile.js",
       "src/background/dailies.js",
+      "src/background/timeHelper.js",
       "src/background/time.js",
       "src/background/backgroundMessageActionCollection.js",
       "src/background/background.js"

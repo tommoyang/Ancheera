@@ -1,9 +1,9 @@
 (function () {
     var clocktimer = false;
-    var date;
-    var dailyReset = null;
-    var weeklyReset = null;
-    var monthlyReset = null;
+    var date; // Date adjusted for JST
+    var dailyReset = null; // Date
+    var weeklyReset = null; // Date
+    var monthlyReset = null; // Date
 
     var isAssaultTime = false;
     var nextAssaultTime = null;
@@ -11,9 +11,6 @@
 
     var isDefenseOrder = false;
     var nextDefenseOrder = null;
-
-    var isAngelHalo = false;
-    var nextAngelHalo = null;
 
     var timeZone;
 
@@ -23,23 +20,20 @@
     var nightAlert = '#749d91';
 
     var time = {
-        'daily': 0,
-        'weekly': 0,
-        'monthly': 0,
+        'daily': 0, // unix timestamp till when daily reset, should be the same as dailyReset;
+        'weekly': 0, // ditto
+        'monthly': 0, // ditto
         'assault-0': -1,
         'assault-1': -1,
-        'angel-active': false,
-        'angel-time': null,
         'defense-active': false,
         'defense-time': null
     };
 
-    var times = {
+    var timesTill = {
         'daily-time': null,
         'weekly-time': null,
         'monthly-time': null,
         'assault-time': null,
-        'angel-time': null,
         'defense-time': null,
     };
 
@@ -51,10 +45,10 @@
         'monthly-date': null,
         'assault-date-0': null,
         'assault-date-1': null,
-        'angel-date': null,
         'defense-date': null
     };
 
+    // These are the only times in here adjusted for local timezone
     var normalTimes = {
         'time': null,
         'date': null,
@@ -63,16 +57,14 @@
         'monthly-date': null,
         'assault-date-0': null,
         'assault-date-1': null,
-        'angel-date': null,
         'defense-date': null
     };
 
-    var isTimes = {
+    var isActiveTimes = {
         'is-daily': false,
         'is-weekly': false,
         'is-monthly': false,
         'is-assault': false,
-        'is-angel': false,
         'is-defense': false
     }
 
@@ -81,67 +73,39 @@
             date = new Date();
 
             date.setMinutes(date.getMinutes() + date.getTimezoneOffset() + 540);
-            Storage.Get(['time'], function (response) {//['daily', 'weekly', 'monthly', 'assault', 'angel', 'defense'], function(response) {
+            Storage.Get(['time'], function (response) {
                 if (response['time'] !== undefined) {
                     time = response['time'];
                     dailyReset = new Date(time.daily);
                     weeklyReset = new Date(time.weekly);
                     monthlyReset = new Date(time.monthly);
                     assaultTimes = [time['assault-0'], time['assault-1']];
-                    isAngelHalo = time['angel-active'];
-                    nextAngelHalo = new Date(time['angel-time']);
                     isDefenseOrder = time['defense-active'];
                     nextDefenseOrder = new Date(time['defense-time']);
                 } else {
                     Storage.Set(time);
-                    newDaily();
-                    newWeekly();
-                    newMonthly();
+                    populateDailyReset();
+                    populateWeeklyReset();
+                    populateMonthlyReset();
                 }
-                newAssaultTime();
-                setAssaultTime();
-                // if(response['daily'] !== undefined) {
-                //   dailyReset = new Date(response['daily']);
-                // } else {
-                //   newDaily();
-                // }
-                // if(response['weekly'] !== undefined) {
-                //   weeklyReset = new Date(response['weekly']);
-                // } else {
-                //   newWeekly();
-                // }
-                // if(response['monthly'] !== undefined) {
-                //   monthlyReset = new Date(response['monthly']);
-                // } else {
-                //   newMonthly();
-                // }
-                // if(response['assault'] !== undefined) {
-                //   assaultTimes = response['assault'];
-                // }
-                // if(response['angel'] !== undefined) {
-                //   isAngelHalo = response['angel'].active;
-                //   nextAngelHalo = new Date(response['angel'].time);
-                // }
-                // if(response['defense'] !== undefined) {
-                //   isDefenseOrder = response['defense'].active;
-                //   nextDefenseOrder = new Date(response['defense'].time);
-                // }
+                populateNextAssaultTime();
+                postAssaultTimeMessage();
                 if (dailyReset !== null && weeklyReset !== null && monthlyReset !== null) {
                     if (Date.parse(date) >= Date.parse(dailyReset)) {
 
                         if (Date.parse(date) >= Date.parse(monthlyReset)) {
                             Dailies.MonthlyReset();
-                            newMonthly();
+                            populateMonthlyReset();
                         }
                         if (Date.parse(date) >= Date.parse(weeklyReset)) {
                             Dailies.WeeklyReset();
-                            newWeekly();
+                            populateWeeklyReset();
                         }
                         Dailies.Reset();
-                        newDaily();
+                        populateDailyReset();
                     }
                 }
-                newDate();
+                populateDate();
                 startClock();
                 if (callback !== undefined) {
                     callback();
@@ -150,36 +114,31 @@
         },
         InitializeDev: function () {
             var response = [];
-            Object.keys(times).forEach(function (key) {
-                response.push(getJquery(key));
+            Object.keys(timesTill).forEach(function (key) {
+                response.push(createCategoryMessage(key));
             });
             Object.keys(jstTimes).forEach(function (key) {
-                response.push(getJquery(key));
+                response.push(createCategoryMessage(key));
             });
-            Object.keys(isTimes).forEach(function (key) {
-                response.push(getJquery(key));
+            Object.keys(isActiveTimes).forEach(function (key) {
+                response.push(createCategoryMessage(key));
             });
-            setTimeZone();
+            postSetTimeZoneMessage();
             return response;
         },
         SetAssaultTime: function (hours) {
             saveAssaultTime(hours);
-            newAssaultTime();
+            populateNextAssaultTime();
         },
         SetDefenseOrder: function (minutes, active) {
             isDefenseOrder = active;
             if (active && minutes === -1) {
                 if (nextDefenseOrder === null) {
-                    newDefenseTime(29);
+                    populateDefenseTimes(29);
                 }
             } else {
-                newDefenseTime(minutes);
+                populateDefenseTimes(minutes);
             }
-        },
-        SetAngelHalo: function (delta, active) {
-            isAngelHalo = active;
-            newAngelTime(delta);
-            setDate();
         },
         ParseTime: function (diff, unit) {
             str = "";
@@ -224,38 +183,38 @@
             return str;
         },
         UpdateAlertColor() {
-            Object.keys(isTimes).forEach(function (key) {
-                Message.PostAll(getJquery(key));
+            Object.keys(isActiveTimes).forEach(function (key) {
+                Message.PostAll(createCategoryMessage(key));
             });
         }
     }
 
-    var startClock = function () {
+    function startClock() {
         clearInterval(clocktimer);
         clocktimer = setInterval(function () {
             date.setSeconds(date.getSeconds() + 1);
             checkNewDay();
             var now = Date.now() + (date.getTimezoneOffset() + 540) * 60000;
             if (date.getTime() - 100 <= now && date.getTime() + 100 >= now && (date.getMilliseconds() <= 100 || date.getMilliseconds() >= 900)) {
-                setDate();
+                populateAndPostAll();
             } else {
                 refreshClock();
             }
         }, 1000);
     }
 
-    var refreshClock = function () {
-        newDate();
+    function refreshClock() {
+        populateDate();
         clearInterval(clocktimer);
         clocktimer = setTimeout(function () {
             date.setSeconds(date.getSeconds() + 1);
             checkNewDay();
-            setDate();
+            populateAndPostAll();
             startClock();
         }, 1000 - date.getMilliseconds());
     }
 
-    var newDate = function () {
+    function populateDate() {
         date = new Date();
         var curr = timeZone;
         var temp = /\((.*)\)/.exec(date.toString())[1].split(' ');
@@ -264,40 +223,320 @@
             timeZone += temp[i][0];
         }
         if (timeZone !== curr) {
-            setTimeZone();
+            postSetTimeZoneMessage();
         }
         date.setMinutes(date.getMinutes() + date.getTimezoneOffset() + 540);
-        setDate();
+        populateAndPostAll();
     }
 
-    var newDaily = function () {
+    function populateDailyReset() {
         dailyReset = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 5, 0, 0, 0);
         if (date.getHours() >= 5) {
             dailyReset.setDate(date.getDate() + 1);
         }
-        storeTime({'daily': Date.parse(dailyReset)});
-        //Storage.Set('daily', Date.parse(dailyReset));
+        storeTime({
+            'daily': Date.parse(dailyReset)
+        });
     }
-    var newWeekly = function () {
+
+    function populateWeeklyReset() {
         weeklyReset = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 5, 0, 0, 0);
         if (date.getDay() === 0) {
             weeklyReset.setDate(date.getDate() + 1);
-        } else if (date.getDay() === 1 && date.getHours() < 5) {
-        } else {
+        } else if (date.getDay() === 1 && date.getHours() < 5) {} else {
             weeklyReset.setDate(date.getDate() + (8 - date.getDay()));
         }
-        storeTime({'weekly': Date.parse(weeklyReset)});
-        //Storage.Set('weekly', Date.parse(weeklyReset));
+        storeTime({
+            'weekly': Date.parse(weeklyReset)
+        });
     }
-    var newMonthly = function () {
+
+    function populateMonthlyReset() {
         if (date.getDate() === 1 && date.getHours() < 5) {
             monthlyReset = new Date(date.getFullYear(), date.getMonth(), 1, 5, 0, 0, 0);
         } else {
             monthlyReset = new Date(date.getFullYear(), date.getMonth() + 1, 1, 5, 0, 0, 0);
         }
-        storeTime({'monthly': Date.parse(monthlyReset)});
+        storeTime({
+            'monthly': Date.parse(monthlyReset)
+        });
     }
-    var newAssaultTime = function () {
+
+    function populateDefenseTimes(delta) {
+        var tuples = {};
+        if (delta !== -1) {
+            nextDefenseOrder = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes() + delta, 59, 0);
+            tuples['defense-active'] = isDefenseOrder;
+            tuples['defense-time'] = Date.parse(nextDefenseOrder);
+        } else {
+            isDefenseOrder = false;
+            nextDefenseOrder = null;
+            tuples['defense-active'] = false;
+            tuples['defense-time'] = null;
+        }
+    }
+
+    function checkDefenseOrder() {
+        if (nextDefenseOrder !== null && Date.parse(date) >= Date.parse(nextDefenseOrder)) {
+            if (!isDefenseOrder && Date.parse(date) < Date.parse(nextDefenseOrder) + 1800000) {
+                isDefenseOrder = true;
+                populateDefenseTimes(29);
+                return true;
+            } else {
+                populateDefenseTimes(-1);
+            }
+        }
+        return false;
+    }
+
+    function checkNewDay() {
+        if (Date.parse(date) >= Date.parse(nextAssaultTime) && Date.parse(date) < Date.parse(nextAssaultTime) + 3600000) {
+            if (!isAssaultTime) {
+                Message.Notify('Strike time has begun!', '', 'strikeTimeNotifications');
+            }
+            populateNextAssaultTime();
+        } else if (Date.parse(date) >= Date.parse(nextAssaultTime) + 3600000) {
+            populateNextAssaultTime();
+        }
+        if (checkDefenseOrder()) {
+            Message.Notify('Defense Order has begun!', '', 'defenseOrderNotifications');
+        }
+        if (Date.parse(date) >= Date.parse(dailyReset)) {
+            if (Date.parse(date) >= Date.parse(monthlyReset) && Date.parse(date) >= Date.parse(weeklyReset)) {
+                Dailies.WeeklyReset();
+                Dailies.MonthlyReset();
+                populateWeeklyReset();
+                populateMonthlyReset();
+                Message.Notify('Monthly and weekly reset!', '', 'dailyResetNotifications');
+            } else if (Date.parse(date) >= Date.parse(monthlyReset)) {
+                Dailies.MonthlyReset();
+                populateMonthlyReset();
+                Message.Notify('Monthly reset!', '', 'dailyResetNotifications');
+            } else if (Date.parse(date) >= Date.parse(weeklyReset)) {
+                Dailies.WeeklyReset();
+                populateWeeklyReset();
+                Message.Notify('Weekly reset!', '', 'dailyResetNotifications');
+            } else {
+                Message.Notify('Daily reset!', '', 'dailyResetNotifications');
+            }
+            Dailies.Reset();
+            populateDailyReset();
+            populateDate();
+        }
+    }
+
+    function populateAndPostAll() {
+        var dailyResetTimeTillStr = Time.ParseTime(Math.abs(dailyReset - date), 'h');
+        populateAndPostTimesTillMessage('daily-time', dailyResetTimeTillStr);
+        if (dailyResetTimeTillStr.indexOf('h') === -1) {
+            populateAndPostIsActiveTimesMessage('is-daily', true);
+        } else if (dailyResetTimeTillStr.indexOf('h') !== -1) {
+            populateAndPostIsActiveTimesMessage('is-daily', false);
+        }
+
+        var weeklyResetTimeTillStr = Time.ParseTime(Math.abs(weeklyReset - date), 'd');
+        populateAndPostTimesTillMessage('weekly-time', weeklyResetTimeTillStr);
+        if (weeklyResetTimeTillStr.indexOf('d') === -1) {
+            populateAndPostIsActiveTimesMessage('is-weekly', true);
+        } else {
+            populateAndPostIsActiveTimesMessage('is-weekly', false);
+        }
+
+        var monthlyResetTimeTillStr = Time.ParseTime(Math.abs(monthlyReset - date), 'd');
+        populateAndPostTimesTillMessage('monthly-time', monthlyResetTimeTillStr);
+        if (monthlyResetTimeTillStr.indexOf('d') === -1) {
+            populateAndPostIsActiveTimesMessage('is-monthly', true);
+        } else {
+            populateAndPostIsActiveTimesMessage('is-monthly', false);
+        }
+
+        if (nextAssaultTime !== null) {
+            if (isAssaultTime) {
+                populateAndPostIsActiveTimesMessage('is-assault', true);
+            } else {
+                populateAndPostIsActiveTimesMessage('is-assault', false);
+            }
+            var assaultTimeTillStr = Time.ParseTime(Math.abs(nextAssaultTime - date), 'h');
+            populateAndPostTimesTillMessage('assault-time', assaultTimeTillStr);
+        } else {
+            populateAndPostIsActiveTimesMessage('is-assault', false);
+            populateAndPostTimesTillMessage('assault-time', '???');
+        }
+        if (nextDefenseOrder !== null) {
+            if (isDefenseOrder) {
+                populateAndPostIsActiveTimesMessage('is-defense', true);
+            } else {
+                populateAndPostIsActiveTimesMessage('is-defense', false);
+            }
+            var defenseOrderTimeTillStr = Time.ParseTime(Math.abs(nextDefenseOrder - date), 'h');
+            populateAndPostTimesTillMessage('defense-time', defenseOrderTimeTillStr);
+        } else {
+            populateAndPostIsActiveTimesMessage('is-defense', false);
+            populateAndPostTimesTillMessage('defense-time', '???');
+        }
+
+        var timezoneOffsetInMinutes = -(date.getTimezoneOffset() + 540);
+        var jstDateStr = "";
+        var jstTimeStr = "";
+        var localDateStr = "";
+        var localTimeStr = "";
+        var array = date.toDateString().split(' ');
+        for (var i = 0; i < array.length; i++) {
+            if (i !== 3) {
+                jstDateStr += array[i] + ' ';
+            }
+        }
+        jstTimeStr = (date.getHours() % 12 || 12) + ':';
+        if (date.getMinutes() < 10) {
+            jstTimeStr += '0';
+        }
+        jstTimeStr += date.getMinutes() + ':'
+        if (date.getSeconds() < 10) {
+            jstTimeStr += '0';
+        }
+        jstTimeStr += date.getSeconds() + ' ';
+        if (date.getHours() <= 11) {
+            jstTimeStr += 'AM';
+        } else {
+            jstTimeStr += 'PM';
+        }
+        date.setMinutes(date.getMinutes() + timezoneOffsetInMinutes);
+        array = date.toDateString().split(' ');
+        for (var i = 0; i < array.length; i++) {
+            if (i !== 3) {
+                localDateStr += array[i] + ' ';
+            }
+        }
+        localTimeStr = (date.getHours() % 12 || 12) + ':';
+        if (date.getMinutes() < 10) {
+            localTimeStr += '0';
+        }
+        localTimeStr += date.getMinutes() + ':'
+        if (date.getSeconds() < 10) {
+            localTimeStr += '0';
+        }
+        localTimeStr += date.getSeconds() + ' ';
+        if (date.getHours() <= 11) {
+            localTimeStr += 'AM';
+        } else {
+            localTimeStr += 'PM';
+        }
+        date.setMinutes(date.getMinutes() - timezoneOffsetInMinutes);
+        populateAndPostAbsoluteTimesMessage('date', jstDateStr, localDateStr);
+        populateAndPostAbsoluteTimesMessage('time', jstTimeStr, localTimeStr);
+        if (nextDefenseOrder !== null) {
+            var nextDefenseOrderJstDateStr = TimeHelper.parseDate(nextDefenseOrder);
+            nextDefenseOrder.setMinutes(nextDefenseOrder.getMinutes() + timezoneOffsetInMinutes);
+            var nextDefenseOrderLocalDateStr = TimeHelper.parseDate(nextDefenseOrder);
+            nextDefenseOrder.setMinutes(nextDefenseOrder.getMinutes() - timezoneOffsetInMinutes);
+            populateAndPostAbsoluteTimesMessage('defense-date', nextDefenseOrderJstDateStr, nextDefenseOrderLocalDateStr);
+        } else {
+            populateAndPostAbsoluteTimesMessage('defense-date', '', '');
+        }
+        var dailyResetJstStr = TimeHelper.parseDate(dailyReset);
+        dailyReset.setMinutes(dailyReset.getMinutes() + timezoneOffsetInMinutes);
+        var dailyResetLocalStr = TimeHelper.parseDate(dailyReset);
+        dailyReset.setMinutes(dailyReset.getMinutes() - timezoneOffsetInMinutes);
+        populateAndPostAbsoluteTimesMessage('daily-date', dailyResetJstStr, dailyResetLocalStr);
+
+        var weeklyResetJstStr = TimeHelper.parseDate(weeklyReset);
+        weeklyReset.setMinutes(weeklyReset.getMinutes() + timezoneOffsetInMinutes);
+        var weeklyResetLocalStr = TimeHelper.parseDate(weeklyReset);
+        weeklyReset.setMinutes(weeklyReset.getMinutes() - timezoneOffsetInMinutes);
+        populateAndPostAbsoluteTimesMessage('weekly-date', weeklyResetJstStr, weeklyResetLocalStr);
+
+        var monthlyResetJstStr = TimeHelper.parseDate(monthlyReset);
+        monthlyReset.setMinutes(monthlyReset.getMinutes() + timezoneOffsetInMinutes);
+        var monthlyResetLocalStr = TimeHelper.parseDate(monthlyReset);
+        monthlyReset.setMinutes(monthlyReset.getMinutes() - timezoneOffsetInMinutes);
+        populateAndPostAbsoluteTimesMessage('monthly-date', monthlyResetJstStr, monthlyResetLocalStr);
+    }
+
+    function populateAndPostIsActiveTimesMessage(category, value) {
+        if (isActiveTimes[category] !== undefined && isActiveTimes[category] !== value) {
+            isActiveTimes[category] = value;
+            Message.PostAll(createCategoryMessage(category));
+        }
+    }
+
+    function populateAndPostTimesTillMessage(category, value) {
+        if (timesTill[category] !== undefined && timesTill[category] !== value) {
+            timesTill[category] = value;
+            Message.PostAll(createCategoryMessage(category));
+        }
+    }
+
+    function storeTime(tuples) {
+        var updated = false;
+        Object.keys(tuples).forEach(function (category) {
+            if (time[category] !== tuples[category]) {
+                updated = true;
+                time[category] = tuples[category];
+            }
+        });
+        if (updated) {
+            Storage.Set('time', time);
+        }
+    }
+
+    function populateAndPostAbsoluteTimesMessage(category, jstValue, normalValue) {
+        if (jstTimes[category] !== undefined && normalTimes[category] !== undefined && jstTimes[category] !== jstValue) {
+            jstTimes[category] = jstValue;
+            normalTimes[category] = normalValue;
+            Message.PostAll(createCategoryMessage(category));
+        }
+    }
+
+    function postSetTimeZoneMessage() {
+        Message.PostAll({
+            setTimeZone: timeZone
+        });
+    }
+
+    function createCategoryMessage(category) {
+        if (timesTill[category] !== undefined) {
+            return {
+                setText: {
+                    'id': '#time-' + category,
+                    'value': timesTill[category]
+                }
+            };
+        } else if (jstTimes[category] !== undefined) {
+            return {
+                setTime: {
+                    'id': '#time-' + category,
+                    'jst': jstTimes[category],
+                    'normal': normalTimes[category]
+                }
+            };
+        } else if (isActiveTimes[category] !== undefined) {
+            var alert = anchiraAlert;
+            var sun = anchiraSun;
+            var theme = Options.Get('windowTheme');
+            if (theme === 'Tiamat Night') {
+                alert = nightAlert;
+                sun = nightSun;
+            }
+            if (isActiveTimes[category] === true) {
+                return {
+                    setColor: {
+                        'id': '#time-' + category,
+                        'value': alert
+                    }
+                };
+            } else if (isActiveTimes[category] === false) {
+                return {
+                    setColor: {
+                        'id': '#time-' + category,
+                        'value': sun
+                    }
+                };
+            }
+        }
+    }
+
+    /* Assault Time */
+    function populateNextAssaultTime() {
         var hour = date.getHours();
         if (hour >= assaultTimes[0] && hour < assaultTimes[0] + 1) {
             isAssaultTime = true;
@@ -324,395 +563,18 @@
             }
         }
     }
-    var newAngelTime = function (delta) {
-        var tuples = {};
-        if (delta !== -1) {
-            nextAngelHalo = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours() + delta, 0, 0, 0);
-            tuples['angel-active'] = isAngelHalo;
-            tuples['angel-time'] = Date.parse(nextAngelHalo);
-        } else {
-            isAngelHalo = false;
-            nextAngelHalo = null;
-            tuples['angel-active'] = false;
-            tuples['angel-time'] = null;
-        }
-        storeTime(tuples);
-    }
 
-    var checkAngelTime = function () {
-        if (nextAngelHalo !== null && Date.parse(date) >= Date.parse(nextAngelHalo)) {
-            if (!isAngelHalo && Date.parse(date) < Date.parse(nextAngelHalo) + 3600000) {
-                isAngelHalo = true;
-                newAngelTime(1);
-                return true;
-            } else {
-                newAngelTime(-1);
-            }
-        }
-        return false;
-    }
-
-    var newDefenseTime = function (delta) {
-        var tuples = {};
-        if (delta !== -1) {
-            nextDefenseOrder = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes() + delta, 59, 0);
-            tuples['defense-active'] = isDefenseOrder;
-            tuples['defense-time'] = Date.parse(nextDefenseOrder);
-        } else {
-            isDefenseOrder = false;
-            nextDefenseOrder = null;
-            tuples['defense-active'] = false;
-            tuples['defense-time'] = null;
-        }
-    }
-
-    var checkDefenseOrder = function () {
-        if (nextDefenseOrder !== null && Date.parse(date) >= Date.parse(nextDefenseOrder)) {
-            if (!isDefenseOrder && Date.parse(date) < Date.parse(nextDefenseOrder) + 1800000) {
-                isDefenseOrder = true;
-                newDefenseTime(29);
-                return true;
-            } else {
-                newDefenseTime(-1);
-            }
-        }
-        return false;
-    }
-    var checkNewDay = function () {
-        if (Date.parse(date) >= Date.parse(nextAssaultTime) && Date.parse(date) < Date.parse(nextAssaultTime) + 3600000) {
-            if (!isAssaultTime) {
-                Message.Notify('Strike time has begun!', '', 'strikeTimeNotifications');
-            }
-            newAssaultTime();
-        } else if (Date.parse(date) >= Date.parse(nextAssaultTime) + 3600000) {
-            newAssaultTime();
-        }
-        if (checkAngelTime()) {
-            Message.Notify('Angel Halo has begun!', '', 'angelHaloNotifications');
-        }
-        if (checkDefenseOrder()) {
-            Message.Notify('Defense Order has begun!', '', 'defenseOrderNotifications');
-        }
-        if (Date.parse(date) >= Date.parse(dailyReset)) {
-            if (Date.parse(date) >= Date.parse(monthlyReset) && Date.parse(date) >= Date.parse(weeklyReset)) {
-                Dailies.WeeklyReset();
-                Dailies.MonthlyReset();
-                newWeekly();
-                newMonthly();
-                Message.Notify('Monthly and weekly reset!', '', 'dailyResetNotifications');
-            } else if (Date.parse(date) >= Date.parse(monthlyReset)) {
-                Dailies.MonthlyReset();
-                newMonthly();
-                Message.Notify('Monthly reset!', '', 'dailyResetNotifications');
-            } else if (Date.parse(date) >= Date.parse(weeklyReset)) {
-                Dailies.WeeklyReset();
-                newWeekly();
-                Message.Notify('Weekly reset!', '', 'dailyResetNotifications');
-            } else {
-                Message.Notify('Daily reset!', '', 'dailyResetNotifications');
-            }
-            Dailies.Reset();
-            newDaily();
-            newDate();
-        }
-    }
-
-    var setDate = function () {
-        var str = "";
-        str = Time.ParseTime(Math.abs(dailyReset - date), 'h');
-        setTime('daily-time', str);
-        if (str.indexOf('h') === -1) {
-            setTime('is-daily', true);
-        } else if (str.indexOf('h') !== -1) {
-            setTime('is-daily', false);
-        }
-
-        str = Time.ParseTime(Math.abs(weeklyReset - date), 'd');
-        setTime('weekly-time', str);
-        if (str.indexOf('d') === -1) {
-            setTime('is-weekly', true);
-        } else {
-            setTime('is-weekly', false);
-        }
-
-        str = Time.ParseTime(Math.abs(monthlyReset - date), 'd');
-        setTime('monthly-time', str);
-        if (str.indexOf('d') === -1) {
-            setTime('is-monthly', true);
-        } else {
-            setTime('is-monthly', false);
-        }
-
-        if (nextAssaultTime !== null) {
-            if (isAssaultTime) {
-                setTime('is-assault', true);
-            } else {
-                setTime('is-assault', false);
-            }
-            str = Time.ParseTime(Math.abs(nextAssaultTime - date), 'h');
-            setTime('assault-time', str);
-        } else {
-            setTime('is-assault', false);
-            setTime('assault-time', '???');
-        }
-        if (nextAngelHalo !== null) {
-            if (isAngelHalo) {
-                setTime('is-angel', true);
-            } else {
-                setTime('is-angel', false);
-            }
-            str = Time.ParseTime(Math.abs(nextAngelHalo - date), 'd');
-            setTime('angel-time', str);
-        } else {
-            setTime('is-angel', false);
-            setTime('angel-time', '???');
-        }
-        if (nextDefenseOrder !== null) {
-            if (isDefenseOrder) {
-                setTime('is-defense', true);
-            } else {
-                setTime('is-defense', false);
-            }
-            str = Time.ParseTime(Math.abs(nextDefenseOrder - date), 'h');
-            setTime('defense-time', str);
-        } else {
-            setTime('is-defense', false);
-            setTime('defense-time', '???');
-        }
-
-        var offset = -(date.getTimezoneOffset() + 540);
-        str = "";
-        var str2 = "";
-        var str3 = "";
-        var str4 = "";
-        var array = date.toDateString().split(' ');
-        for (var i = 0; i < array.length; i++) {
-            if (i !== 3) {
-                str += array[i] + ' ';
-            }
-        }
-        str2 = (date.getHours() % 12 || 12) + ':';
-        if (date.getMinutes() < 10) {
-            str2 += '0';
-        }
-        str2 += date.getMinutes() + ':'
-        if (date.getSeconds() < 10) {
-            str2 += '0';
-        }
-        str2 += date.getSeconds() + ' ';
-        if (date.getHours() <= 11) {
-            str2 += 'AM';
-        } else {
-            str2 += 'PM';
-        }
-        date.setMinutes(date.getMinutes() + offset);
-        array = date.toDateString().split(' ');
-        for (var i = 0; i < array.length; i++) {
-            if (i !== 3) {
-                str3 += array[i] + ' ';
-            }
-        }
-        str4 = (date.getHours() % 12 || 12) + ':';
-        if (date.getMinutes() < 10) {
-            str4 += '0';
-        }
-        str4 += date.getMinutes() + ':'
-        if (date.getSeconds() < 10) {
-            str4 += '0';
-        }
-        str4 += date.getSeconds() + ' ';
-        if (date.getHours() <= 11) {
-            str4 += 'AM';
-        } else {
-            str4 += 'PM';
-        }
-        date.setMinutes(date.getMinutes() - offset);
-        setJSTNormal('date', str, str3);
-        setJSTNormal('time', str2, str4);
-        if (nextAngelHalo !== null) {
-            str = parseDate(nextAngelHalo);
-            nextAngelHalo.setMinutes(nextAngelHalo.getMinutes() + offset);
-            str2 = parseDate(nextAngelHalo);
-            nextAngelHalo.setMinutes(nextAngelHalo.getMinutes() - offset);
-            setJSTNormal('angel-date', str, str2);
-        } else {
-            setJSTNormal('angel-date', '', '');
-        }
-        if (nextDefenseOrder !== null) {
-            str = parseDate(nextDefenseOrder);
-            nextDefenseOrder.setMinutes(nextDefenseOrder.getMinutes() + offset);
-            str2 = parseDate(nextDefenseOrder);
-            nextDefenseOrder.setMinutes(nextDefenseOrder.getMinutes() - offset);
-            setJSTNormal('defense-date', str, str2);
-        } else {
-            setJSTNormal('defense-date', '', '');
-        }
-        str = parseDate(dailyReset);
-        dailyReset.setMinutes(dailyReset.getMinutes() + offset);
-        str2 = parseDate(dailyReset);
-        dailyReset.setMinutes(dailyReset.getMinutes() - offset);
-        setJSTNormal('daily-date', str, str2);
-        str = parseDate(dailyReset);
-        dailyReset.setMinutes(dailyReset.getMinutes() + offset);
-        str2 = parseDate(dailyReset);
-        dailyReset.setMinutes(dailyReset.getMinutes() - offset);
-        setJSTNormal('weekly-date', str, str2);
-        str = parseDate(monthlyReset);
-        monthlyReset.setMinutes(monthlyReset.getMinutes() + offset);
-        str2 = parseDate(monthlyReset);
-        monthlyReset.setMinutes(monthlyReset.getMinutes() - offset);
-        setJSTNormal('monthly-date', str, str2);
-    }
-
-    var setTime = function (category, value) {
-        if (times[category] !== undefined && times[category] !== value) {
-            times[category] = value;
-            Message.PostAll(getJquery(category));
-        } else if (isTimes[category] !== undefined && isTimes[category] !== value) {
-            isTimes[category] = value;
-            Message.PostAll(getJquery(category));
-        }
-    }
-
-    var storeTime = function (tuples) {
-        var updated = false;
-        Object.keys(tuples).forEach(function (category) {
-            if (time[category] !== tuples[category]) {
-                updated = true;
-                time[category] = tuples[category];
-            }
-        });
-        if (updated) {
-            Storage.Set('time', time);
-        }
-    }
-
-    var setJSTNormal = function (category, jstValue, normalValue) {
-        if (jstTimes[category] !== undefined && normalTimes[category] !== undefined && jstTimes[category] !== jstValue) {
-            jstTimes[category] = jstValue;
-            normalTimes[category] = normalValue;
-            //console.log(jstValue + ' ' + normalValue);
-            Message.PostAll(getJquery(category));
-        }
-    }
-
-    var setTimeZone = function () {
-        Message.PostAll({setTimeZone: timeZone});
-    }
-
-    var getJquery = function (category) {
-        if (times[category] !== undefined) {
-            return {
-                setText: {
-                    'id': '#time-' + category,
-                    'value': times[category]
-                }
-            };
-        } else if (jstTimes[category] !== undefined) {
-            return {
-                setTime: {
-                    'id': '#time-' + category,
-                    'jst': jstTimes[category],
-                    'normal': normalTimes[category]
-                }
-            };
-        } else if (isTimes[category] !== undefined) {
-            var alert = anchiraAlert;
-            var sun = anchiraSun;
-            var theme = Options.Get('windowTheme');
-            if (theme === 'Tiamat Night') {
-                alert = nightAlert;
-                sun = nightSun;
-            }
-            if (isTimes[category] === true) {
-                return {
-                    setColor: {
-                        'id': '#time-' + category,
-                        'value': alert //alert
-                    }
-                };
-            } else if (isTimes[category] === false) {
-                return {
-                    setColor: {
-                        'id': '#time-' + category,
-                        'value': sun //sun
-                    }
-                };
-            }
-        }
-    }
-
-    var parseDate = function (date) {
-        if (date === null) {
-            return '';
-        }
-        var array = date.toString().split(' ');
-        var str = '';
-        switch (array[1]) {
-            case 'Jan':
-                str += '1';
-                break;
-            case 'Feb':
-                str += '2';
-                break;
-            case 'Mar':
-                str += '3';
-                break;
-            case 'Apr':
-                str += '4';
-                break;
-            case 'May':
-                str += '5';
-                break;
-            case 'Jun':
-                str += '6';
-                break;
-            case 'Jul':
-                str += '7';
-                break;
-            case 'Aug':
-                str += '8';
-                break;
-            case 'Sep':
-                str += '9';
-                break;
-            case 'Oct':
-                str += '10';
-                break;
-            case 'Nov':
-                str += '11';
-                break;
-            case 'Dec':
-                str += '12';
-                break;
-        }
-        str += '/' + array[2] + ' ';
-        var parse = parseInt(array[4][0] + array[4][1]);
-        if (parse >= 1 && parse <= 11) {
-            str += parse + 'AM';
-        } else if (parse >= 13 && parse <= 23) {
-            str += (parse - 12) + 'PM';
-        } else if (parse === 0) {
-            str += '12AM';
-        } else {
-            str += '12PM';
-        }
-        return str;
-    }
-    saveAssaultTime = function (hours) {
+    function saveAssaultTime(hours) {
         var tuples = {};
         for (var i = 0; i < hours.length; i++) {
             assaultTimes[i] = hours[i];
             tuples['assault-' + i] = hours[i];
         }
         storeTime(tuples);
-        //Storage.Set('assault', assaultTimes);
-
-
-        setAssaultTime();
+        postAssaultTimeMessage();
     }
 
-    setAssaultTime = function () {
+    function postAssaultTimeMessage() {
         for (var i = 0; i < assaultTimes.length; i++) {
             var str = '';
             var str2 = '';
@@ -743,7 +605,7 @@
                 } else {
                     str2 += '12PM';
                 }
-                setJSTNormal('assault-date-' + i, str, str2);
+                populateAndPostAbsoluteTimesMessage('assault-date-' + i, str, str2);
             }
         }
     }
