@@ -95,9 +95,6 @@
             });
         }
 
-        if (message.consoleLog) {
-            console.log(message.consoleLog.sender + ': ' + message.consoleLog.message);
-        }
         if (message.content) {
             var msg = message.content;
             if (msg.assault) {
@@ -215,9 +212,6 @@
             if (message.weaponBuild) {
                 Supplies.BuildWeapon(message.id, message.weaponBuild);
             }
-            if (message.consoleLog) {
-                console.log(message.consoleLog);
-            }
             if (message.request) {
                 BackgroundMessageActionCollection.performRequestAction(message);
             }
@@ -303,13 +297,5 @@
                 sendResponse(response);
             });
         },
-        ConsoleLog: function (sender, message) {
-            chrome.runtime.sendMessage({
-                consoleLog: {
-                    sender: sender,
-                    message: message
-                }
-            });
-        }
     };
 })();

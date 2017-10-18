@@ -268,13 +268,6 @@ function performRequestAction(message) {
     }
     if (message.request.url.indexOf('/sell_article/execute') !== -1) {
         Supplies.SellCoop(message.request.response, message.request.payload);
-        //Supplies.SellCoop(JSON.stringify(request.request.postData).replace(/:/g, '').replace(/,/g, '').split('\\\"'));
-        // Profile.SellCoop(request.request.postData);
-        //Profile.SellCoop(JSON.stringify(request.request.postData).replace(/:/g, '').replace(/,/g, '').split('\\\"'));
-        //Message.ConsoleLog(request.request.text.postData.split('\"'));
-        // request.getContent(function(responseBody) {
-        //   Profile.SetShop(message.request.response);
-        // })
     }
     if (message.request.url.indexOf('/raid/start.json?_=') !== -1 || message.request.url.indexOf('/multiraid/start.json?_=') !== -1) {
         Quest.StartBattle(message.request.response, message.id);
