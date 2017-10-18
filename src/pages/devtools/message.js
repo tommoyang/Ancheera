@@ -430,7 +430,6 @@
         //     $(this).text(value);
         //   });
         // }
-        //Message.Post({'consoleLog': 'new text of ' + id + ': ' + jQueryCache[id].text()});
     };
     var setImage = function (id, value) {
         if (jQueryCache[id] === undefined) {
@@ -604,8 +603,6 @@
                 high = mid;
             }
         }
-        //alert(4);
-        //Message.ConsoleLog('supplies.js', 'low: ' + low + ' low value: ' + sortedSupplies[low]);
         if (low < sortedSupplies.length) {
             $supplyList.children('#supply-' + sortedSupplies[low].sequence + '-' + sortedSupplies[low].id).before(newItem);
             sortedSupplies.splice(low, 0, {
@@ -849,8 +846,6 @@
             });
             newRaid.find('.item-count').each(function (i) {
                 $(this).text(animeAmounts[i]);
-                //Message.Post({'consoleLog': 'setting id: ' + id + '-count-' + animeIDs[i]});
-                //$(this).attr('id', id + '-count-' + animeIDs[i]);
                 $(this).addClass('anime-count-' + animeIDs[i]);
             });
         } else {
@@ -873,7 +868,6 @@
         if (!isEnabled) {
             newDistinction.hide();
         }
-        //Message.Post({'consoleLog': 'added distinction text with id ' + newDistinction.find('.item-count').first().attr('id')});
     };
 
     var addQuestCharacter = function (index) {
@@ -935,7 +929,6 @@
     };
     var setTheme = function (theme) {
         //../../stylesheets/default.css
-        Message.Post({'consoleLog': theme});
         var sheetURL = '../../stylesheets/';
         var $bars = $('.progress-bar');
         if (theme === 'Tiamat Night') {

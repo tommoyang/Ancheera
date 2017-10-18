@@ -214,54 +214,9 @@
 
             }
         }
-    }
-
-    // var pageUpdate = function(url) {
-    //   if(url.indexOf('#quest/index') !== -1) {
-    //     if($('.btn-recommend.visible').length !== 0) {
-    //       $('.prt-quest-detail').each(function() {
-    //         if($(this).find('.txt-quest-title').text() === 'Angel Halo') {
-    //           var time = $(this).find('.prt-remain-time');
-    //           if(time.length !== 0 && time.text().indexOf('Starts') !== -1) {
-    //             var num = time.first().text();
-    //             if(num.indexOf('hour') !== -1) {
-    //               //alert(parseInt(num.substring(10, num.indexOf(' hour'))));
-    //               messageDevTools({angel: {
-    //                 'delta': parseInt(num.substring(10, num.indexOf(' hour'))) + 1,
-    //                 'active': false
-    //               }});
-    //             } else if(num.indexOf('minutes') !== -1) {
-    //               //alert('what');
-    //               messageDevTools({angel: {
-    //                 'delta': 1,
-    //                 'active': false
-    //               }});
-    //             }
-    //           } else {
-    //             //alert('isactive');
-    //             messageDevTools({angel: {
-    //               'delta': 1,
-    //               'active': true
-    //             }});
-    //           }
-    //         }
-    //       });
-    //     }
-    //   }
-    // }
+    };
 
     var messageDevTools = function (message) {
         chrome.runtime.sendMessage({content: message});
-    }
-
-    var consoleLog = function (sender, message) {
-        chrome.runtime.sendMessage({
-            consoleLog: {
-                'sender': sender,
-                'message': message
-            }
-        });
-    }
-
-
+    };
 })();
