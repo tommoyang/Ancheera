@@ -76,30 +76,6 @@
                 messageDevTools({assault: {'times': times}});
             }
         } else if (url.indexOf('#mypage') !== -1) {
-            if ($('.txt-do-remain-on-button').length !== 0) {
-                //chrome.runtime.sendMessage({do: {'time': parseInt($('.txt-do-remain-on-button').text())}});
-                messageDevTools({
-                    defense: {
-                        'time': parseInt($('.txt-do-remain-on-button').text()),
-                        'active': false
-                    }
-                });
-            } else if ($('.do-underway').length !== 0) {
-                messageDevTools({
-                    defense: {
-                        'time': -1,
-                        'active': true
-                    }
-                });
-            } else {
-                messageDevTools({
-                    defense: {
-                        'time': -1,
-                        'active': false
-                    }
-                });
-            }
-
             var $prtUserInfo = $('.prt-user-info');
             var $prtInfoStatus = $prtUserInfo.children('.prt-info-status');
             var $prtInfoPossessed = $prtUserInfo.children('.prt-info-possessed');
