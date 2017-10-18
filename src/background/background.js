@@ -100,9 +100,6 @@
             if (msg.assault) {
                 Time.SetAssaultTime(msg.assault.times);
             }
-            if (msg.defense) {
-                Time.SetDefenseOrder(msg.defense.time, msg.defense.active);
-            }
             if (msg.checkRaids) {
                 Quest.CheckJoinedRaids(msg.checkRaids.raids, msg.checkRaids.unclaimed, msg.checkRaids.type);
             }

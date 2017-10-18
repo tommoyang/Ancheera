@@ -130,16 +130,6 @@
             saveAssaultTime(hours);
             populateNextAssaultTime();
         },
-        SetDefenseOrder: function (minutes, active) {
-            isDefenseOrder = active;
-            if (active && minutes === -1) {
-                if (nextDefenseOrder === null) {
-                    populateDefenseTimes(29);
-                }
-            } else {
-                populateDefenseTimes(minutes);
-            }
-        },
         ParseTime: function (diff, unit) {
             var str = "";
             var parse;
@@ -262,33 +252,6 @@
         });
     }
 
-    function populateDefenseTimes(delta) {
-        var tuples = {};
-        if (delta !== -1) {
-            nextDefenseOrder = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes() + delta, 59, 0);
-            tuples['defense-active'] = isDefenseOrder;
-            tuples['defense-time'] = Date.parse(nextDefenseOrder);
-        } else {
-            isDefenseOrder = false;
-            nextDefenseOrder = null;
-            tuples['defense-active'] = false;
-            tuples['defense-time'] = null;
-        }
-    }
-
-    function checkDefenseOrder() {
-        if (nextDefenseOrder !== null && Date.parse(date) >= Date.parse(nextDefenseOrder)) {
-            if (!isDefenseOrder && Date.parse(date) < Date.parse(nextDefenseOrder) + 1800000) {
-                isDefenseOrder = true;
-                populateDefenseTimes(29);
-                return true;
-            } else {
-                populateDefenseTimes(-1);
-            }
-        }
-        return false;
-    }
-
     function checkNewDay() {
         if (Date.parse(date) >= Date.parse(nextAssaultTime) && Date.parse(date) < Date.parse(nextAssaultTime) + 3600000) {
             if (!isAssaultTime) {
@@ -298,9 +261,7 @@
         } else if (Date.parse(date) >= Date.parse(nextAssaultTime) + 3600000) {
             populateNextAssaultTime();
         }
-        if (checkDefenseOrder()) {
-            Message.Notify('Defense Order has begun!', '', 'defenseOrderNotifications');
-        }
+
         if (Date.parse(date) >= Date.parse(dailyReset)) {
             if (Date.parse(date) >= Date.parse(monthlyReset) && Date.parse(date) >= Date.parse(weeklyReset)) {
                 Dailies.WeeklyReset();
