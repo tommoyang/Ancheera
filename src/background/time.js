@@ -66,7 +66,7 @@
         'is-monthly': false,
         'is-assault': false,
         'is-defense': false
-    }
+    };
 
     window.Time = {
         Initialize: function (callback) {
@@ -130,18 +130,8 @@
             saveAssaultTime(hours);
             populateNextAssaultTime();
         },
-        SetDefenseOrder: function (minutes, active) {
-            isDefenseOrder = active;
-            if (active && minutes === -1) {
-                if (nextDefenseOrder === null) {
-                    populateDefenseTimes(29);
-                }
-            } else {
-                populateDefenseTimes(minutes);
-            }
-        },
         ParseTime: function (diff, unit) {
-            str = "";
+            var str = "";
             var parse;
             var letters = ['d', 'h', 'm', 's'];
             var index = letters.indexOf(unit);
@@ -187,7 +177,7 @@
                 Message.PostAll(createCategoryMessage(key));
             });
         }
-    }
+    };
 
     function startClock() {
         clearInterval(clocktimer);
@@ -200,7 +190,7 @@
             } else {
                 refreshClock();
             }
-        }, 1000);
+        }, 60000);
     }
 
     function refreshClock() {
@@ -262,33 +252,6 @@
         });
     }
 
-    function populateDefenseTimes(delta) {
-        var tuples = {};
-        if (delta !== -1) {
-            nextDefenseOrder = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes() + delta, 59, 0);
-            tuples['defense-active'] = isDefenseOrder;
-            tuples['defense-time'] = Date.parse(nextDefenseOrder);
-        } else {
-            isDefenseOrder = false;
-            nextDefenseOrder = null;
-            tuples['defense-active'] = false;
-            tuples['defense-time'] = null;
-        }
-    }
-
-    function checkDefenseOrder() {
-        if (nextDefenseOrder !== null && Date.parse(date) >= Date.parse(nextDefenseOrder)) {
-            if (!isDefenseOrder && Date.parse(date) < Date.parse(nextDefenseOrder) + 1800000) {
-                isDefenseOrder = true;
-                populateDefenseTimes(29);
-                return true;
-            } else {
-                populateDefenseTimes(-1);
-            }
-        }
-        return false;
-    }
-
     function checkNewDay() {
         if (Date.parse(date) >= Date.parse(nextAssaultTime) && Date.parse(date) < Date.parse(nextAssaultTime) + 3600000) {
             if (!isAssaultTime) {
@@ -298,9 +261,7 @@
         } else if (Date.parse(date) >= Date.parse(nextAssaultTime) + 3600000) {
             populateNextAssaultTime();
         }
-        if (checkDefenseOrder()) {
-            Message.Notify('Defense Order has begun!', '', 'defenseOrderNotifications');
-        }
+
         if (Date.parse(date) >= Date.parse(dailyReset)) {
             if (Date.parse(date) >= Date.parse(monthlyReset) && Date.parse(date) >= Date.parse(weeklyReset)) {
                 Dailies.WeeklyReset();
@@ -390,7 +351,7 @@
         if (date.getMinutes() < 10) {
             jstTimeStr += '0';
         }
-        jstTimeStr += date.getMinutes() + ':'
+        jstTimeStr += date.getMinutes() + ':';
         if (date.getSeconds() < 10) {
             jstTimeStr += '0';
         }
@@ -411,7 +372,7 @@
         if (date.getMinutes() < 10) {
             localTimeStr += '0';
         }
-        localTimeStr += date.getMinutes() + ':'
+        localTimeStr += date.getMinutes() + ':';
         if (date.getSeconds() < 10) {
             localTimeStr += '0';
         }
@@ -424,15 +385,7 @@
         date.setMinutes(date.getMinutes() - timezoneOffsetInMinutes);
         populateAndPostAbsoluteTimesMessage('date', jstDateStr, localDateStr);
         populateAndPostAbsoluteTimesMessage('time', jstTimeStr, localTimeStr);
-        if (nextDefenseOrder !== null) {
-            var nextDefenseOrderJstDateStr = TimeHelper.parseDate(nextDefenseOrder);
-            nextDefenseOrder.setMinutes(nextDefenseOrder.getMinutes() + timezoneOffsetInMinutes);
-            var nextDefenseOrderLocalDateStr = TimeHelper.parseDate(nextDefenseOrder);
-            nextDefenseOrder.setMinutes(nextDefenseOrder.getMinutes() - timezoneOffsetInMinutes);
-            populateAndPostAbsoluteTimesMessage('defense-date', nextDefenseOrderJstDateStr, nextDefenseOrderLocalDateStr);
-        } else {
-            populateAndPostAbsoluteTimesMessage('defense-date', '', '');
-        }
+
         var dailyResetJstStr = TimeHelper.parseDate(dailyReset);
         dailyReset.setMinutes(dailyReset.getMinutes() + timezoneOffsetInMinutes);
         var dailyResetLocalStr = TimeHelper.parseDate(dailyReset);
