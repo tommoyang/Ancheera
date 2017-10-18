@@ -61,16 +61,16 @@
         var response;
         if (url.indexOf('#guild') !== -1) {
             response = findInfoGuild();
-            messageDevTools(response);
+            messageDevTools(response, 'guild');
         } else if (url.indexOf('#mypage') !== -1) {
             response = findInfoMypage();
-            messageDevTools(response);
+            messageDevTools(response, 'mypage');
         } else if (url.indexOf('#coopraid/room/') !== -1) {
             response = findInfoCoop();
-            messageDevTools(response);
+            messageDevTools(response, 'coop');
         } else if (url.indexOf('#casino') !== -1) {
             response = findInfoCasino();
-            messageDevTools(response);
+            messageDevTools(response, 'casino');
         }
     }
 
@@ -132,7 +132,12 @@
         }
     }
 
-    function messageDevTools(message) {
-        chrome.runtime.sendMessage({content: message});
+    var tracked = {};
+
+    function messageDevTools(message, id) {
+        if (JSON.stringify(message) !== JSON.stringify(tracked[id])) {
+            chrome.runtime.sendMessage({content: message});
+            tracked[id] = message;
+        }
     }
 })();
