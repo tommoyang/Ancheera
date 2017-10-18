@@ -66,7 +66,7 @@
         'is-monthly': false,
         'is-assault': false,
         'is-defense': false
-    }
+    };
 
     window.Time = {
         Initialize: function (callback) {
@@ -141,7 +141,7 @@
             }
         },
         ParseTime: function (diff, unit) {
-            str = "";
+            var str = "";
             var parse;
             var letters = ['d', 'h', 'm', 's'];
             var index = letters.indexOf(unit);
@@ -187,7 +187,7 @@
                 Message.PostAll(createCategoryMessage(key));
             });
         }
-    }
+    };
 
     function startClock() {
         clearInterval(clocktimer);
@@ -200,7 +200,7 @@
             } else {
                 refreshClock();
             }
-        }, 1000);
+        }, 60000);
     }
 
     function refreshClock() {
@@ -390,7 +390,7 @@
         if (date.getMinutes() < 10) {
             jstTimeStr += '0';
         }
-        jstTimeStr += date.getMinutes() + ':'
+        jstTimeStr += date.getMinutes() + ':';
         if (date.getSeconds() < 10) {
             jstTimeStr += '0';
         }
@@ -411,7 +411,7 @@
         if (date.getMinutes() < 10) {
             localTimeStr += '0';
         }
-        localTimeStr += date.getMinutes() + ':'
+        localTimeStr += date.getMinutes() + ':';
         if (date.getSeconds() < 10) {
             localTimeStr += '0';
         }
@@ -424,15 +424,7 @@
         date.setMinutes(date.getMinutes() - timezoneOffsetInMinutes);
         populateAndPostAbsoluteTimesMessage('date', jstDateStr, localDateStr);
         populateAndPostAbsoluteTimesMessage('time', jstTimeStr, localTimeStr);
-        if (nextDefenseOrder !== null) {
-            var nextDefenseOrderJstDateStr = TimeHelper.parseDate(nextDefenseOrder);
-            nextDefenseOrder.setMinutes(nextDefenseOrder.getMinutes() + timezoneOffsetInMinutes);
-            var nextDefenseOrderLocalDateStr = TimeHelper.parseDate(nextDefenseOrder);
-            nextDefenseOrder.setMinutes(nextDefenseOrder.getMinutes() - timezoneOffsetInMinutes);
-            populateAndPostAbsoluteTimesMessage('defense-date', nextDefenseOrderJstDateStr, nextDefenseOrderLocalDateStr);
-        } else {
-            populateAndPostAbsoluteTimesMessage('defense-date', '', '');
-        }
+
         var dailyResetJstStr = TimeHelper.parseDate(dailyReset);
         dailyReset.setMinutes(dailyReset.getMinutes() + timezoneOffsetInMinutes);
         var dailyResetLocalStr = TimeHelper.parseDate(dailyReset);
