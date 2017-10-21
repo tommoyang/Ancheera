@@ -54,3 +54,5 @@ src/.sass-cache
 
 # IDE stuff
 jsconfig.json
+tsconfig.json
+.vscode
