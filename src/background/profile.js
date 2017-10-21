@@ -434,11 +434,14 @@
         }
     }
 
-    function setProfileData (tuples) {
+    function setProfileData(tuples) {
         var updated = false;
         var value;
         Object.keys(tuples).forEach(function (category) {
             value = tuples[category];
+
+            if (typeof value === 'undefined' || isNaN(value)) return; // Don't do shit with bad data
+
             if (value < 0) {
                 value = 0;
             }
