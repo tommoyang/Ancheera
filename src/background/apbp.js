@@ -42,13 +42,6 @@
                 apTracker.stageQuest(0);
             }
         },
-        InitializeRaid: function (json) {
-            bpTracker.stageRaidFromJson(json);
-        },
-        InitializeRaidCode: function (json) {
-            bpTracker.stageRaidCodeFromJson(json);
-        },
-
         StartRaid: function (json, payload) {
             bpTracker.spendBpOnStagedRaid(json, payload)
             apTracker.stageQuest(0);

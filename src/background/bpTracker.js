@@ -10,9 +10,6 @@ class BpTracker {
         };
 
         this.bpTimer;
-        this.availableRaids = {};
-        this.currRaids = {};
-        this.raidBpCost = 0;
     }
 
     updateFromJson(status) {
@@ -40,31 +37,12 @@ class BpTracker {
             this.stopBpTimer();
         }
     }
-
-    stageRaidFromJson(json) {
-        this.availableRaids = {};
-        var raid;
-        for (var i = 0; i < json.assist_raids_data.length; i++) {
-            raid = json.assist_raids_data[i];
-            this.availableRaids[raid.raid.id] = {
-                bp: raid.used_battle_point
-            };
-        }
-    }
-    stageRaidCodeFromJson(json) {
-        this.availableRaids = {};
-        this.availableRaids[json.raid.id] = {
-            bp: json.used_battle_point
-        };
-    }
     spendBpOnStagedRaid(json, payload) {
         if (json.result !== false) {
             if (json.is_host === false) {
                 this.spendBp(parseInt(payload.select_bp));
             }
-            this.currRaids[json.raid_id] = this.availableRaids[json.raid_id];
         }
-        this.availableRaids = {};
     }
     getMaxBp() {
         return this.maxBp;
