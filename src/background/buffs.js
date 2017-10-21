@@ -77,7 +77,7 @@
         // if(buffs.length > index) {
         //   Message.PostAll({'setText':{
         //     'id': id + 'time',
-        //     'value': Time.ParseTime(Math.abs(buffs[index].endTime - Date.now()), 'h').replace(',','')
+        //     'value': TimeHelper.parseTime(Math.abs(buffs[index].endTime - Date.now()), 'h').replace(',','')
         //   }});
         //   Message.PostAll({'setImage':{
         //     'id': id + 'image',
@@ -102,7 +102,7 @@
                 return {
                     'setText': {
                         'id': id + 'time',
-                        'value': Time.ParseTime(Math.abs(buffs[index].endTime - Date.now()), 'h').replace(',', '')
+                        'value': TimeHelper.parseTime(Math.abs(buffs[index].endTime - Date.now()), 'h').replace(',', '')
                     }
                 };
             } else if (type === 'image') {

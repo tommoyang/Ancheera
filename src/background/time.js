@@ -117,48 +117,6 @@
             saveAssaultTime(hours);
             populateNextAssaultTime();
         },
-        ParseTime: function (diff, unit) {
-            var str = "";
-            var parse;
-            var letters = ['d', 'h', 'm', 's'];
-            var index = letters.indexOf(unit);
-            if (index !== -1) {
-                for (var i = index, count = 0; i < letters.length && count < 2; i++) {
-                    switch (letters[i]) {
-                        case 'd':
-                            parse = parseInt(diff / (1000 * 60 * 60 * 24));
-                            break;
-                        case 'h':
-                            parse = parseInt(diff / (1000 * 60 * 60)) % 24;
-                            break;
-                        case 'm':
-                            parse = parseInt(diff / (1000 * 60)) % 60;
-                            break;
-                        case 's':
-                            parse = parseInt((diff / 1000) % 60);
-                            break;
-                    }
-                    if (i < letters.length - 1 || count > 0 || parse > 0) {
-                        if (count > 0) {
-                            count++;
-                            str += parse + letters[i];
-                        } else {
-                            if (parse > 0 && i < letters.length - 1) {
-                                str += parse + letters[i] + ', ';
-                                count++;
-                            } else if (parse > 0 && i === letters.length - 1) {
-                                str += parse + letters[i];
-                            }
-                        }
-                    } else {
-                        str = '<1s';
-                    }
-                }
-            } else {
-                str = "PARSETIME ERROR";
-            }
-            return str;
-        },
         UpdateAlertColor() {
             Object.keys(isActiveTimes).forEach(function (key) {
                 Message.PostAll(createCategoryMessage(key));
@@ -248,7 +206,7 @@
     }
 
     function populateAndPostAll() {
-        var dailyResetTimeTillStr = Time.ParseTime(Math.abs(dailyReset - jstDate), 'h');
+        var dailyResetTimeTillStr = TimeHelper.parseTime(Math.abs(dailyReset - jstDate), 'h');
         populateAndPostTimesTillMessage('daily-time', dailyResetTimeTillStr);
         if (dailyResetTimeTillStr.indexOf('h') === -1) {
             populateAndPostIsActiveTimesMessage('is-daily', true);
@@ -256,7 +214,7 @@
             populateAndPostIsActiveTimesMessage('is-daily', false);
         }
 
-        var weeklyResetTimeTillStr = Time.ParseTime(Math.abs(weeklyReset - jstDate), 'd');
+        var weeklyResetTimeTillStr = TimeHelper.parseTime(Math.abs(weeklyReset - jstDate), 'd');
         populateAndPostTimesTillMessage('weekly-time', weeklyResetTimeTillStr);
         if (weeklyResetTimeTillStr.indexOf('d') === -1) {
             populateAndPostIsActiveTimesMessage('is-weekly', true);
@@ -264,7 +222,7 @@
             populateAndPostIsActiveTimesMessage('is-weekly', false);
         }
 
-        var monthlyResetTimeTillStr = Time.ParseTime(Math.abs(monthlyReset - jstDate), 'd');
+        var monthlyResetTimeTillStr = TimeHelper.parseTime(Math.abs(monthlyReset - jstDate), 'd');
         populateAndPostTimesTillMessage('monthly-time', monthlyResetTimeTillStr);
         if (monthlyResetTimeTillStr.indexOf('d') === -1) {
             populateAndPostIsActiveTimesMessage('is-monthly', true);
@@ -446,7 +404,7 @@
         } else {
             populateAndPostIsActiveTimesMessage('is-assault', false);
         }
-        var assaultTimeTillStr = Time.ParseTime(Math.abs(nextAssaultTime - jstDate), 'h');
+        var assaultTimeTillStr = TimeHelper.parseTime(Math.abs(nextAssaultTime - jstDate), 'h');
         populateAndPostTimesTillMessage('assault-time', assaultTimeTillStr);
     }
 
