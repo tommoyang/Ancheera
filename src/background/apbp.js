@@ -43,7 +43,7 @@
             }
         },
         StartRaid: function (json, payload) {
-            bpTracker.spendBpOnStagedRaid(json, payload)
+            bpTracker.spendBpFromJson(json, payload)
             apTracker.stageQuest(0);
         },
         RestoreAPBP: function (json) {

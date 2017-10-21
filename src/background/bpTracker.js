@@ -37,7 +37,7 @@ class BpTracker {
             this.stopBpTimer();
         }
     }
-    spendBpOnStagedRaid(json, payload) {
+    spendBpFromJson(json, payload) {
         if (json.result !== false) {
             if (json.is_host === false) {
                 this.spendBp(parseInt(payload.select_bp));
