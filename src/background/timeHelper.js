@@ -1,4 +1,4 @@
-var parseDate = function (date) {
+function parseDate(date) {
     if (date === null) {
         return '';
     }
@@ -56,6 +56,14 @@ var parseDate = function (date) {
     return str;
 }
 
+function getJstNowDate() {
+    var jstMinutesOffset = 540;
+    var nowJstDate = new Date();
+    nowJstDate.setMinutes(nowJstDate.getMinutes() + nowJstDate.getTimezoneOffset() + jstMinutesOffset);
+    return nowJstDate;
+}
+
 window.TimeHelper = {
-    parseDate: parseDate
+    parseDate: parseDate,
+    getJstNowDate: getJstNowDate
 };

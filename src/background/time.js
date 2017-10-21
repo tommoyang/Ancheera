@@ -1,6 +1,6 @@
 (function () {
     var clocktimer = false;
-    var date; // Date adjusted for JST
+    var jstDate; // Date adjusted for JST
     var dailyReset = null; // Date
     var weeklyReset = null; // Date
     var monthlyReset = null; // Date
@@ -60,9 +60,8 @@
 
     window.Time = {
         Initialize: function (callback) {
-            date = new Date();
+            jstDate = TimeHelper.getJstNowDate();
 
-            date.setMinutes(date.getMinutes() + date.getTimezoneOffset() + 540);
             Storage.Get(['time'], function (response) {
                 if (response['time'] !== undefined) {
                     time = response['time'];
@@ -79,13 +78,13 @@
                 populateNextAssaultTime();
                 postAssaultTimeMessage();
                 if (dailyReset !== null && weeklyReset !== null && monthlyReset !== null) {
-                    if (Date.parse(date) >= Date.parse(dailyReset)) {
+                    if (Date.parse(jstDate) >= Date.parse(dailyReset)) {
 
-                        if (Date.parse(date) >= Date.parse(monthlyReset)) {
+                        if (Date.parse(jstDate) >= Date.parse(monthlyReset)) {
                             Dailies.MonthlyReset();
                             populateMonthlyReset();
                         }
-                        if (Date.parse(date) >= Date.parse(weeklyReset)) {
+                        if (Date.parse(jstDate) >= Date.parse(weeklyReset)) {
                             Dailies.WeeklyReset();
                             populateWeeklyReset();
                         }
@@ -168,34 +167,17 @@
     };
 
     function startClock() {
-        clearInterval(clocktimer);
         clocktimer = setInterval(function () {
-            date.setSeconds(date.getSeconds() + 1);
+            jstDate = TimeHelper.getJstNowDate();
             checkNewDay();
-            var now = Date.now() + (date.getTimezoneOffset() + 540) * 60000;
-            if (date.getTime() - 100 <= now && date.getTime() + 100 >= now && (date.getMilliseconds() <= 100 || date.getMilliseconds() >= 900)) {
-                populateAndPostAll();
-            } else {
-                refreshClock();
-            }
+            populateAndPostAll();
         }, 60000);
     }
 
-    function refreshClock() {
-        populateDate();
-        clearInterval(clocktimer);
-        clocktimer = setTimeout(function () {
-            date.setSeconds(date.getSeconds() + 1);
-            checkNewDay();
-            populateAndPostAll();
-            startClock();
-        }, 1000 - date.getMilliseconds());
-    }
-
     function populateDate() {
-        date = new Date();
+        var timeNow = new Date();
         var curr = timeZone;
-        var temp = /\((.*)\)/.exec(date.toString())[1].split(' ');
+        var temp = /\((.*)\)/.exec(timeNow.toString())[1].split(' ');
         timeZone = '';
         for (var i = 0; i < temp.length; i++) {
             timeZone += temp[i][0];
@@ -203,14 +185,13 @@
         if (timeZone !== curr) {
             postSetTimeZoneMessage();
         }
-        date.setMinutes(date.getMinutes() + date.getTimezoneOffset() + 540);
         populateAndPostAll();
     }
 
     function populateDailyReset() {
-        dailyReset = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 5, 0, 0, 0);
-        if (date.getHours() >= 5) {
-            dailyReset.setDate(date.getDate() + 1);
+        dailyReset = new Date(jstDate.getFullYear(), jstDate.getMonth(), jstDate.getDate(), 5, 0, 0, 0);
+        if (jstDate.getHours() >= 5) {
+            dailyReset.setDate(jstDate.getDate() + 1);
         }
         storeTime({
             'daily': Date.parse(dailyReset)
@@ -218,11 +199,11 @@
     }
 
     function populateWeeklyReset() {
-        weeklyReset = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 5, 0, 0, 0);
-        if (date.getDay() === 0) {
-            weeklyReset.setDate(date.getDate() + 1);
-        } else if (date.getDay() === 1 && date.getHours() < 5) {} else {
-            weeklyReset.setDate(date.getDate() + (8 - date.getDay()));
+        weeklyReset = new Date(jstDate.getFullYear(), jstDate.getMonth(), jstDate.getDate(), 5, 0, 0, 0);
+        if (jstDate.getDay() === 0) {
+            weeklyReset.setDate(jstDate.getDate() + 1);
+        } else if (jstDate.getDay() === 1 && jstDate.getHours() < 5) {} else {
+            weeklyReset.setDate(jstDate.getDate() + (8 - jstDate.getDay()));
         }
         storeTime({
             'weekly': Date.parse(weeklyReset)
@@ -230,10 +211,10 @@
     }
 
     function populateMonthlyReset() {
-        if (date.getDate() === 1 && date.getHours() < 5) {
-            monthlyReset = new Date(date.getFullYear(), date.getMonth(), 1, 5, 0, 0, 0);
+        if (jstDate.getDate() === 1 && jstDate.getHours() < 5) {
+            monthlyReset = new Date(jstDate.getFullYear(), jstDate.getMonth(), 1, 5, 0, 0, 0);
         } else {
-            monthlyReset = new Date(date.getFullYear(), date.getMonth() + 1, 1, 5, 0, 0, 0);
+            monthlyReset = new Date(jstDate.getFullYear(), jstDate.getMonth() + 1, 1, 5, 0, 0, 0);
         }
         storeTime({
             'monthly': Date.parse(monthlyReset)
@@ -241,27 +222,27 @@
     }
 
     function checkNewDay() {
-        if (Date.parse(date) >= Date.parse(nextAssaultTime) && Date.parse(date) < Date.parse(nextAssaultTime) + 3600000) {
+        if (Date.parse(jstDate) >= Date.parse(nextAssaultTime) && Date.parse(jstDate) < Date.parse(nextAssaultTime) + 3600000) {
             if (!isAssaultTime) {
                 Message.Notify('Strike time has begun!', '', 'strikeTimeNotifications');
             }
             populateNextAssaultTime();
-        } else if (Date.parse(date) >= Date.parse(nextAssaultTime) + 3600000) {
+        } else if (Date.parse(jstDate) >= Date.parse(nextAssaultTime) + 3600000) {
             populateNextAssaultTime();
         }
 
-        if (Date.parse(date) >= Date.parse(dailyReset)) {
-            if (Date.parse(date) >= Date.parse(monthlyReset) && Date.parse(date) >= Date.parse(weeklyReset)) {
+        if (Date.parse(jstDate) >= Date.parse(dailyReset)) {
+            if (Date.parse(jstDate) >= Date.parse(monthlyReset) && Date.parse(jstDate) >= Date.parse(weeklyReset)) {
                 Dailies.WeeklyReset();
                 Dailies.MonthlyReset();
                 populateWeeklyReset();
                 populateMonthlyReset();
                 Message.Notify('Monthly and weekly reset!', '', 'dailyResetNotifications');
-            } else if (Date.parse(date) >= Date.parse(monthlyReset)) {
+            } else if (Date.parse(jstDate) >= Date.parse(monthlyReset)) {
                 Dailies.MonthlyReset();
                 populateMonthlyReset();
                 Message.Notify('Monthly reset!', '', 'dailyResetNotifications');
-            } else if (Date.parse(date) >= Date.parse(weeklyReset)) {
+            } else if (Date.parse(jstDate) >= Date.parse(weeklyReset)) {
                 Dailies.WeeklyReset();
                 populateWeeklyReset();
                 Message.Notify('Weekly reset!', '', 'dailyResetNotifications');
@@ -275,7 +256,7 @@
     }
 
     function populateAndPostAll() {
-        var dailyResetTimeTillStr = Time.ParseTime(Math.abs(dailyReset - date), 'h');
+        var dailyResetTimeTillStr = Time.ParseTime(Math.abs(dailyReset - jstDate), 'h');
         populateAndPostTimesTillMessage('daily-time', dailyResetTimeTillStr);
         if (dailyResetTimeTillStr.indexOf('h') === -1) {
             populateAndPostIsActiveTimesMessage('is-daily', true);
@@ -283,7 +264,7 @@
             populateAndPostIsActiveTimesMessage('is-daily', false);
         }
 
-        var weeklyResetTimeTillStr = Time.ParseTime(Math.abs(weeklyReset - date), 'd');
+        var weeklyResetTimeTillStr = Time.ParseTime(Math.abs(weeklyReset - jstDate), 'd');
         populateAndPostTimesTillMessage('weekly-time', weeklyResetTimeTillStr);
         if (weeklyResetTimeTillStr.indexOf('d') === -1) {
             populateAndPostIsActiveTimesMessage('is-weekly', true);
@@ -291,7 +272,7 @@
             populateAndPostIsActiveTimesMessage('is-weekly', false);
         }
 
-        var monthlyResetTimeTillStr = Time.ParseTime(Math.abs(monthlyReset - date), 'd');
+        var monthlyResetTimeTillStr = Time.ParseTime(Math.abs(monthlyReset - jstDate), 'd');
         populateAndPostTimesTillMessage('monthly-time', monthlyResetTimeTillStr);
         if (monthlyResetTimeTillStr.indexOf('d') === -1) {
             populateAndPostIsActiveTimesMessage('is-monthly', true);
@@ -305,60 +286,60 @@
             } else {
                 populateAndPostIsActiveTimesMessage('is-assault', false);
             }
-            var assaultTimeTillStr = Time.ParseTime(Math.abs(nextAssaultTime - date), 'h');
+            var assaultTimeTillStr = Time.ParseTime(Math.abs(nextAssaultTime - jstDate), 'h');
             populateAndPostTimesTillMessage('assault-time', assaultTimeTillStr);
         } else {
             populateAndPostIsActiveTimesMessage('is-assault', false);
             populateAndPostTimesTillMessage('assault-time', '???');
         }
 
-        var timezoneOffsetInMinutes = -(date.getTimezoneOffset() + 540);
+        var timezoneOffsetInMinutes = -(jstDate.getTimezoneOffset() + 540);
         var jstDateStr = "";
         var jstTimeStr = "";
         var localDateStr = "";
         var localTimeStr = "";
-        var array = date.toDateString().split(' ');
+        var array = jstDate.toDateString().split(' ');
         for (var i = 0; i < array.length; i++) {
             if (i !== 3) {
                 jstDateStr += array[i] + ' ';
             }
         }
-        jstTimeStr = (date.getHours() % 12 || 12) + ':';
-        if (date.getMinutes() < 10) {
+        jstTimeStr = (jstDate.getHours() % 12 || 12) + ':';
+        if (jstDate.getMinutes() < 10) {
             jstTimeStr += '0';
         }
-        jstTimeStr += date.getMinutes() + ':';
-        if (date.getSeconds() < 10) {
+        jstTimeStr += jstDate.getMinutes() + ':';
+        if (jstDate.getSeconds() < 10) {
             jstTimeStr += '0';
         }
-        jstTimeStr += date.getSeconds() + ' ';
-        if (date.getHours() <= 11) {
+        jstTimeStr += jstDate.getSeconds() + ' ';
+        if (jstDate.getHours() <= 11) {
             jstTimeStr += 'AM';
         } else {
             jstTimeStr += 'PM';
         }
-        date.setMinutes(date.getMinutes() + timezoneOffsetInMinutes);
-        array = date.toDateString().split(' ');
+        jstDate.setMinutes(jstDate.getMinutes() + timezoneOffsetInMinutes);
+        array = jstDate.toDateString().split(' ');
         for (var i = 0; i < array.length; i++) {
             if (i !== 3) {
                 localDateStr += array[i] + ' ';
             }
         }
-        localTimeStr = (date.getHours() % 12 || 12) + ':';
-        if (date.getMinutes() < 10) {
+        localTimeStr = (jstDate.getHours() % 12 || 12) + ':';
+        if (jstDate.getMinutes() < 10) {
             localTimeStr += '0';
         }
-        localTimeStr += date.getMinutes() + ':';
-        if (date.getSeconds() < 10) {
+        localTimeStr += jstDate.getMinutes() + ':';
+        if (jstDate.getSeconds() < 10) {
             localTimeStr += '0';
         }
-        localTimeStr += date.getSeconds() + ' ';
-        if (date.getHours() <= 11) {
+        localTimeStr += jstDate.getSeconds() + ' ';
+        if (jstDate.getHours() <= 11) {
             localTimeStr += 'AM';
         } else {
             localTimeStr += 'PM';
         }
-        date.setMinutes(date.getMinutes() - timezoneOffsetInMinutes);
+        jstDate.setMinutes(jstDate.getMinutes() - timezoneOffsetInMinutes);
         populateAndPostAbsoluteTimesMessage('date', jstDateStr, localDateStr);
         populateAndPostAbsoluteTimesMessage('time', jstTimeStr, localTimeStr);
 
@@ -466,31 +447,37 @@
 
     /* Assault Time */
     function populateNextAssaultTime() {
-        var hour = date.getHours();
-        if (hour >= assaultTimes[0] && hour < assaultTimes[0] + 1) {
+        var currentHour = jstDate.getHours();
+        var selectedNextAssaultTimeHour;
+        var selectedNextAssasultTimeDate = jstDate.getDate();
+        if (currentHour >= assaultTimes[0] && currentHour < assaultTimes[0] + 1) { // During 1st assault time
             isAssaultTime = true;
-            nextAssaultTime = new Date(date.getFullYear(), date.getMonth(), date.getDate(), assaultTimes[0] + 1, 0, 0, 0);
-        } else if (hour >= assaultTimes[1] && hour < assaultTimes[1] + 1) {
+            selectedNextAssaultTimeHour = assaultTimes[0] + 1;
+        } else if (currentHour >= assaultTimes[1] && currentHour < assaultTimes[1] + 1) {
             isAssaultTime = true;
-            nextAssaultTime = new Date(date.getFullYear(), date.getMonth(), date.getDate(), assaultTimes[1] + 1, 0, 0, 0);
+            selectedNextAssaultTimeHour = assaultTimes[1];
         } else {
             isAssaultTime = false;
             if (assaultTimes[1] === -1) {
                 if (assaultTimes[0] === -1) {
                     nextAssaultTime = null;
+                    return;
                 } else {
-                    nextAssaultTime = new Date(date.getFullYear(), date.getMonth(), date.getDate(), assaultTimes[0], 0, 0, 0);
+                    selectedNextAssaultTimeHour = assaultTimes[0], 0, 0, 0;
                 }
             } else {
-                if (hour < assaultTimes[0] && hour < assaultTimes[1]) {
-                    nextAssaultTime = new Date(date.getFullYear(), date.getMonth(), date.getDate(), Math.min(assaultTimes[0], assaultTimes[1]), 0, 0, 0);
-                } else if (hour > assaultTimes[0] && hour > assaultTimes[1]) {
-                    nextAssaultTime = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, Math.min(assaultTimes[0], assaultTimes[1]), 0, 0, 0);
+                if (currentHour < assaultTimes[0] && currentHour < assaultTimes[1]) {
+                    selectedNextAssaultTimeHour = Math.min(assaultTimes[0], assaultTimes[1]);
+                } else if (currentHour > assaultTimes[0] && currentHour > assaultTimes[1]) {
+                    selectedNextAssasultTimeDate = jstDate.getDate() + 1;
+                    selectedNextAssaultTimeHour = Math.min(assaultTimes[0], assaultTimes[1]);
                 } else {
-                    nextAssaultTime = new Date(date.getFullYear(), date.getMonth(), date.getDate(), Math.max(assaultTimes[0], assaultTimes[1]), 0, 0, 0);
+                    selectedNextAssaultTimeHour = Math.max(assaultTimes[0], assaultTimes[1]);
                 }
             }
         }
+
+        nextAssaultTime = new Date(jstDate.getFullYear(), jstDate.getMonth(), selectedNextAssasultTimeDate, selectedNextAssaultTimeHour, 0, 0, 0);
     }
 
     function saveAssaultTime(hours) {
@@ -505,20 +492,20 @@
 
     function postAssaultTimeMessage() {
         for (var i = 0; i < assaultTimes.length; i++) {
-            var str = '';
-            var str2 = '';
+            var jstAssaultTimeStr = '';
+            var localAssaultTimeStr = '';
             if (assaultTimes[i] !== -1) {
                 var hour = assaultTimes[i];
                 if (hour >= 1 && hour <= 11) {
-                    str += hour + 'AM';
+                    jstAssaultTimeStr += hour + 'AM';
                 } else if (hour >= 13 && hour <= 23) {
-                    str += (hour - 12) + 'PM';
+                    jstAssaultTimeStr += (hour - 12) + 'PM';
                 } else if (hour === 0) {
-                    str += '12AM';
+                    jstAssaultTimeStr += '12AM';
                 } else {
-                    str += '12PM';
+                    jstAssaultTimeStr += '12PM';
                 }
-                hour = assaultTimes[i] - (date.getTimezoneOffset() / 60 + 9);
+                hour = assaultTimes[i] - (jstDate.getTimezoneOffset() / 60 + 9);
                 while (hour < 0) {
                     hour += 24;
                 }
@@ -526,15 +513,15 @@
                     hour -= 24;
                 }
                 if (hour >= 1 && hour <= 11) {
-                    str2 += hour + 'AM';
+                    localAssaultTimeStr += hour + 'AM';
                 } else if (hour >= 13 && hour <= 23) {
-                    str2 += (hour - 12) + 'PM';
+                    localAssaultTimeStr += (hour - 12) + 'PM';
                 } else if (hour === 0) {
-                    str2 += '12AM';
+                    localAssaultTimeStr += '12AM';
                 } else {
-                    str2 += '12PM';
+                    localAssaultTimeStr += '12PM';
                 }
-                populateAndPostAbsoluteTimesMessage('assault-date-' + i, str, str2);
+                populateAndPostAbsoluteTimesMessage('assault-date-' + i, jstAssaultTimeStr, localAssaultTimeStr);
             }
         }
     }
