@@ -565,7 +565,6 @@
         if ((filter !== 'all' && filter !== category) || name.toLowerCase().indexOf(search) === -1) {
             newItem.hide();
         }
-        console.log('hi');
         newItem.data('name', name.toLowerCase());
         var imgURL;
         if (category === 'recovery') {
