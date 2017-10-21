@@ -221,7 +221,7 @@
     var messages = [
         'Click every panel!',
         'Don\'t give up, skeleton!',
-        'Bugs, questions, comments, or\nrecommendations? Email them to\nancheeraextension@gmail.com',
+        //'Bugs, questions, comments, or\nrecommendations? Please refer to https://github.com/tommoyang/Mahira',
         'Desire sensor is real',
         'You have a 100% chance to get\nanything in the gacha if you\nthrow enough $$$$$ at it',
         'goodwork.png',
