@@ -24,7 +24,9 @@
   "background": {
     "scripts": [
       "src/background/timeHelper.js",
-
+      "src/background/apTracker.js",
+      "src/background/bpTracker.js",
+      
       "src/background/storage.js",
       "src/background/options.js",
 
