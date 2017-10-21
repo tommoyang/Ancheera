@@ -9,9 +9,6 @@
     var nextAssaultTime = null;
     var assaultTimes = [-1, -1];
 
-    var isDefenseOrder = false;
-    var nextDefenseOrder = null;
-
     var timeZone;
 
     var anchiraSun = '#f8e5be';
@@ -24,17 +21,14 @@
         'weekly': 0, // ditto
         'monthly': 0, // ditto
         'assault-0': -1,
-        'assault-1': -1,
-        'defense-active': false,
-        'defense-time': null
+        'assault-1': -1
     };
 
     var timesTill = {
         'daily-time': null,
         'weekly-time': null,
         'monthly-time': null,
-        'assault-time': null,
-        'defense-time': null,
+        'assault-time': null
     };
 
     var jstTimes = {
@@ -43,9 +37,7 @@
         'daily-date': null,
         'weekly-date': null,
         'monthly-date': null,
-        'assault-date-0': null,
-        'assault-date-1': null,
-        'defense-date': null
+        'assault-date-0': null
     };
 
     // These are the only times in here adjusted for local timezone
@@ -56,16 +48,14 @@
         'weekly-date': null,
         'monthly-date': null,
         'assault-date-0': null,
-        'assault-date-1': null,
-        'defense-date': null
+        'assault-date-1': null
     };
 
     var isActiveTimes = {
         'is-daily': false,
         'is-weekly': false,
         'is-monthly': false,
-        'is-assault': false,
-        'is-defense': false
+        'is-assault': false
     };
 
     window.Time = {
@@ -80,8 +70,6 @@
                     weeklyReset = new Date(time.weekly);
                     monthlyReset = new Date(time.monthly);
                     assaultTimes = [time['assault-0'], time['assault-1']];
-                    isDefenseOrder = time['defense-active'];
-                    nextDefenseOrder = new Date(time['defense-time']);
                 } else {
                     Storage.Set(time);
                     populateDailyReset();
@@ -322,18 +310,6 @@
         } else {
             populateAndPostIsActiveTimesMessage('is-assault', false);
             populateAndPostTimesTillMessage('assault-time', '???');
-        }
-        if (nextDefenseOrder !== null) {
-            if (isDefenseOrder) {
-                populateAndPostIsActiveTimesMessage('is-defense', true);
-            } else {
-                populateAndPostIsActiveTimesMessage('is-defense', false);
-            }
-            var defenseOrderTimeTillStr = Time.ParseTime(Math.abs(nextDefenseOrder - date), 'h');
-            populateAndPostTimesTillMessage('defense-time', defenseOrderTimeTillStr);
-        } else {
-            populateAndPostIsActiveTimesMessage('is-defense', false);
-            populateAndPostTimesTillMessage('defense-time', '???');
         }
 
         var timezoneOffsetInMinutes = -(date.getTimezoneOffset() + 540);
