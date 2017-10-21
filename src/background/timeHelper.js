@@ -63,7 +63,51 @@ function getJstNowDate() {
     return nowJstDate;
 }
 
+function parseTime(diff, unit) {
+    var str = "";
+    var parse;
+    var letters = ['d', 'h', 'm', 's'];
+    var index = letters.indexOf(unit);
+    if (index !== -1) {
+        for (var i = index, count = 0; i < letters.length && count < 2; i++) {
+            switch (letters[i]) {
+                case 'd':
+                    parse = parseInt(diff / (1000 * 60 * 60 * 24));
+                    break;
+                case 'h':
+                    parse = parseInt(diff / (1000 * 60 * 60)) % 24;
+                    break;
+                case 'm':
+                    parse = parseInt(diff / (1000 * 60)) % 60;
+                    break;
+                case 's':
+                    parse = parseInt((diff / 1000) % 60);
+                    break;
+            }
+            if (i < letters.length - 1 || count > 0 || parse > 0) {
+                if (count > 0) {
+                    count++;
+                    str += parse + letters[i];
+                } else {
+                    if (parse > 0 && i < letters.length - 1) {
+                        str += parse + letters[i] + ', ';
+                        count++;
+                    } else if (parse > 0 && i === letters.length - 1) {
+                        str += parse + letters[i];
+                    }
+                }
+            } else {
+                str = '<1s';
+            }
+        }
+    } else {
+        str = "PARSETIME ERROR";
+    }
+    return str;
+}
+
 window.TimeHelper = {
     parseDate: parseDate,
+    parseTime: parseTime,
     getJstNowDate: getJstNowDate
 };
