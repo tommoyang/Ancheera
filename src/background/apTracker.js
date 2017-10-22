@@ -80,7 +80,8 @@ class ApTracker {
             }
 
             // todo: where does amt come from?
-            this.apTime.hour += Math.floor(amt * 5 / 60);
+            // this.apTime.hour += Math.floor(amt * 5 / 60);
+
             this.setApTime();
             if (!this.apTimer) {
                 this.resetApTimer();
