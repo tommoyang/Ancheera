@@ -720,9 +720,10 @@
             }
         },
         CreateRaid: function (json, devID) {
-            if (json.result !== false && json.is_host === false) {
-                var id = '' + json.raid_id;
-                for (var i = 0; i < raids.length; i++) {
+            // if (json.raid_id !== false && json.is_host === false) {
+            if (json.raid_id !== false) {
+                let id = '' + json.raid_id;
+                for (let i = 0; i < raids.length; i++) {
                     if (raids.id === id) {
                         return;
                     }

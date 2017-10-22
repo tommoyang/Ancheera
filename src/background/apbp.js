@@ -26,7 +26,6 @@
         },
         StartQuest: function (json, payload) {
             let id = payload.quest_id;
-            window.console.log(id);
             if (id == 715571 || id == 715561 || id == 715551) {
                 apTracker.stageQuest(50);
             } else if (id == 715541) {

@@ -95,7 +95,7 @@ function performRequestAction(message) {
     //join raid
     if (message.request.url.indexOf('/quest/raid_deck_data_create') !== -1) {
         APBP.StartRaid(message.request.payload);
-        Quest.CreateRaid(message.request.response, message.id);
+        Quest.CreateRaid(message.request.payload, message.id);
     }
     // if(message.request.url.indexOf('/check_reward/') !== -1) {
     //   Quest.CompleteQuest(message.request.url);
