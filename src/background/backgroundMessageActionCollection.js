@@ -16,7 +16,7 @@ function performConnectPageLoad(connection) {
             connection.postMessage({
                 pageLoad: tabs[0].url
             });
-            var index = tabs[0].url.indexOf('#quest/supporter/');
+            let index = tabs[0].url.indexOf('#quest/supporter/');
             if (index !== -1) {
                 Message.PostAll({
                     'setClick': {
@@ -94,7 +94,7 @@ function performRequestAction(message) {
     // }
     //join raid
     if (message.request.url.indexOf('/quest/raid_deck_data_create') !== -1) {
-        APBP.StartRaid(message.request.response, message.request.payload);
+        APBP.StartRaid(message.request.payload);
         Quest.CreateRaid(message.request.response, message.id);
     }
     // if(message.request.url.indexOf('/check_reward/') !== -1) {

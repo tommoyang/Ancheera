@@ -35,11 +35,9 @@ class BpTracker {
             this.stopBpTimer();
         }
     }
-    spendBpFromJson(json, payload) {
-        if (json.result !== false) {
-            if (json.is_host === false) {
-                this.spendBp(parseInt(payload.select_bp));
-            }
+    spendBpFromJson(payload) {
+        if (payload.select_bp) {
+            this.spendBp(parseInt(payload.select_bp));
         }
     }
     getMaxBp() {
