@@ -39,11 +39,7 @@ class ApTracker {
     stageQuest(apCost) {
         this.questApCost = apCost;
     }
-
-    getCurrentAp() {
-        return this.currentAp;
-    }
-
+    
     getMaxAp() {
         return this.maxAp;
     }
