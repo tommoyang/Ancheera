@@ -7,16 +7,16 @@ class ApTracker {
             minute: 0,
             second: 0
         };
-        this.apTimer;
+
         this.questApCost = 0;
     }
 
     updateFromJson(status) {
         this.setAp(status.ap, status.max_action_point);
         if (status.action_point_remain.indexOf('00:00') === -1) {
-            var index = status.action_point_remain.indexOf('h');
-            var hour = this.apTime.hour;
-            var minute = this.apTime.minute;
+            let index = status.action_point_remain.indexOf('h');
+            let hour = this.apTime.hour;
+            let minute = this.apTime.minute;
             if (index !== -1) {
                 this.apTime.hour = Number(status.action_point_remain.substring(0, index));
             }
@@ -49,7 +49,8 @@ class ApTracker {
     }
 
     spendApOnStagedQuest() {
-        var full;
+        let full;
+
         if (this.currentAp >= this.maxAp) {
             full = true;
             this.setAp(this.currentAp - this.questApCost, this.maxAp);
@@ -61,12 +62,14 @@ class ApTracker {
         } else {
             this.setAp(this.currentAp - this.questApCost, this.maxAp);
         }
+
         if (this.currentAp < this.maxAp) {
             this.apTime.minute += this.questApCost * 5 % 60;
             if (this.apTime.minute >= 60) {
                 this.apTime.minute -= 60;
                 this.apTime.hour++;
             }
+
             if (full) {
                 this.apTime.minute--;
                 if (this.apTime.minute < 0) {
@@ -75,6 +78,8 @@ class ApTracker {
                 }
                 this.apTime.second = 59;
             }
+
+            // todo: where does amt come from?
             this.apTime.hour += Math.floor(amt * 5 / 60);
             this.setApTime();
             if (!this.apTimer) {
@@ -116,14 +121,14 @@ class ApTracker {
     }
 
     setApTime() {
-        var output = "";
+        let output = "";
         if (this.apTime.hour > 0) {
             output += this.apTime.hour + ':';
             if (this.apTime.minute < 10) {
                 output += '0'
             }
         }
-        if (this.apTime.minute > 0 || (this.apTime.minute == 0 && this.apTime.hour > 0)) {
+        if (this.apTime.minute > 0 || (this.apTime.minute === 0 && this.apTime.hour > 0)) {
             output += this.apTime.minute + ':';
             if (this.apTime.second < 10) {
                 output += '0';
@@ -158,7 +163,7 @@ class ApTracker {
                     }
                     this.apTime.minute = 59;
                 }
-                var max = this.maxAp * 20;
+
                 if ((this.apTime.minute % 10 === 4 || this.apTime.minute % 10 === 9) && !(this.apTime.hour === Math.floor((this.maxAp * 5 - 1) / 60) && this.apTime.minute === (this.maxAp * 5 - 1) % 60)) {
                     this.setAp(this.currentAp + 1, this.maxAp);
                 }
