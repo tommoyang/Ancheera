@@ -71,7 +71,8 @@ function performRequestAction(message) {
         Dailies.DecPrimarchs(message.request.payload);
     }
     if (message.request.url.indexOf('/quest/raid_info?') !== -1) {
-        Quest.CheckMulti(message.request.response);
+        // todo: Why do we need to know this?
+        // Quest.CheckMulti(message.request.response);
         //is_multi
     }
 
