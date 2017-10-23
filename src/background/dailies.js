@@ -605,8 +605,10 @@
             }
         },
         SetPrimarchs: function (json) {
-            var primarchJson = json.option.quest.extra_normal_quest.quest_list.host_group['3000'];
-            setDailies([['primarchs'], primarchJson.group_limited_count]);
+            if (json.option.quest.extra_normal_quest) {
+                var primarchJson = json.option.quest.extra_normal_quest.quest_list.host_group['3000'];
+                setDailies([['primarchs'], primarchJson.group_limited_count]);
+            }
         },
         DecPrimarchs: function (payload) {
             if (primarchHash['' + payload.quest_id]) {

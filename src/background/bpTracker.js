@@ -8,16 +8,14 @@ class BpTracker {
             minute: 0,
             second: 0
         };
-
-        this.bpTimer;
     }
 
     updateFromJson(status) {
         this.setBp(status.bp, status.max_battle_point);
         if (status.battle_point_remain.indexOf('00:00') === -1) {
-            var index = status.battle_point_remain.indexOf('h');
-            hour = this.bpTime.hour;
-            minute = this.bpTime.minute;
+            const index = status.battle_point_remain.indexOf('h');
+            const hour = this.bpTime.hour;
+            const minute = this.bpTime.minute;
             if (index !== -1) {
                 this.bpTime.hour = Number(status.battle_point_remain.substring(0, index));
             } else {
@@ -28,7 +26,7 @@ class BpTracker {
             } else {
                 this.bpTime.minute = 0;
             }
-            if (hour !== bpTime.hour || minute !== this.bpTime.minute) {
+            if (hour !== this.bpTime.hour || minute !== this.bpTime.minute) {
                 this.bpTime.second = 59;
                 this.setBpTime();
                 this.resetBpTimer();
@@ -37,18 +35,16 @@ class BpTracker {
             this.stopBpTimer();
         }
     }
-    spendBpFromJson(json, payload) {
-        if (json.result !== false) {
-            if (json.is_host === false) {
-                this.spendBp(parseInt(payload.select_bp));
-            }
+    spendBpFromJson(payload) {
+        if (payload.select_bp) {
+            this.spendBp(parseInt(payload.select_bp));
         }
     }
     getMaxBp() {
         return this.maxBp;
     }
     spendBp(amount) {
-        var full = false;
+        let full = false;
         if (this.currentBp >= this.maxBp) {
             full = true;
             this.setBp(this.currentBp - amount, this.maxBp);
@@ -112,14 +108,14 @@ class BpTracker {
         }
     }
     setBpTime() {
-        var output = "";
+        let output = "";
         if (this.bpTime.hour > 0) {
             output += this.bpTime.hour + ':';
             if (this.bpTime.minute < 10) {
                 output += '0'
             }
         }
-        if (this.bpTime.minute > 0 || (this.bpTime.minute == 0 && this.bpTime.hour > 0)) {
+        if (this.bpTime.minute > 0 || (this.bpTime.minute === 0 && this.bpTime.hour > 0)) {
             output += this.bpTime.minute + ':';
             if (this.bpTime.second < 10) {
                 output += '0';
@@ -139,6 +135,7 @@ class BpTracker {
 
     resetBpTimer() {
         clearInterval(this.bpTimer);
+
         this.bpTimer = setInterval(() => {
             this.bpTime.second--;
             if (this.bpTime.second < 0) {
