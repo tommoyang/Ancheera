@@ -55,9 +55,6 @@
                 }
             }
         },
-        GetAP: function () {
-            return apTracker.getCurrentAp();
-        },
         SetMax: function () {
             apTracker.addAp(apTracker.getMaxAp());
             bpTracker.addBp(bpTracker.getMaxBp());

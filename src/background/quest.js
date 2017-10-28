@@ -291,54 +291,71 @@
         };
     }
 
-    var events = [];
+  // var characters = [
+    //   null,
+    //   null,
+    //   null,
+    //   null
+    // ];
 
-    function createEvent(url) {
-        var bosses = [];
-        var bossID = null;
-        var currency1 = null;
-        var currency2 = null;
-        if (url.indexOf('teamraid') !== -1) {
-            currency1 = '10022';
-            bossID = '7139';
-            bosses.push({
-                'image': eyeIcon,
-                'id': '31',
-                'ap': 25,
-                'currency1': 0,
-                'currency2': 0,
-                'hasAP': false,
-                'hasCurrency': true
-            });
-            bosses.push({
-                'image': dogeIcon,
-                'id': '41',
-                'ap': 30,
-                'currency1': 2,
-                'currency2': 0,
-                'hasAP': false,
-                'hasCurrency': false
-            });
-            bosses.push({
-                'image': dogeIcon,
-                'id': '51',
-                'ap': 50,
-                'currency1': 5,
-                'currency2': 0,
-                'hasAP': false,
-                'hasCurrency': false
-            });
-        }
+    //var buffs = [];
+
+    var createCharacter = function (image, currHP, maxHP, currCharge, maxCharge) {
         return {
-            url: url,
-            bosses: bosses,
-            bossID: bossID,
-            currency1: currency1,
-            currency2: currency2,
+            image: image,
+            currHP: currHP,
+            maxHP: maxHP,
+            currCharge: currCharge,
+            maxCharge: maxCharge,
+            skills: [null, null, null, null],
+            buffs: []
+        };
+    }
+    var createSkill = function (name, image, cooldown, turns, time) {
+        return {
+            name: name,
+            image: image,
+            cooldown: cooldown,
+            turns: turns,
+            time: time,
+        }
+    }
+    var createBuff = function (owner, image, turns) {
+        return {
+            owner: owner,
+            image: image,
+            turns: turns
         }
     }
 
-    events.push(createEvent('#event/teamraid024'));
+    //var enemies = [null, null, null];
+
+    var createEnemy = function (image, currHP, maxHP, currCharge, maxCharge, mode) {
+        return {
+            image: image,
+            currHP: currHP,
+            maxHP: maxHP,
+            currCharge: currCharge,
+            maxCharge: maxCharge,
+            mode: mode,
+            debuffs: []
+        };
+    }
+
+    var createDebuff = function (owner, image, time) {
+        return {
+            owner: owner,
+            image: image,
+            time: time
+        }
+    }
+    var createSummon = function (image, cooldown) {
+        return {
+            image: image,
+            cooldown: cooldown
+        }
+    }
+    var questImageURLs = {};
 
     window.Quest = {
         Initialize: function (callback) {
@@ -428,59 +445,6 @@
                     }
                 }
             }
-            for (var i = 0; i < events.length; i++) {
-                if (events[i].currency1 !== null) {
-                    Supplies.Get(events[i].currency1, 'event', function (id, num) {
-                        for (var i = 0; i < events.length; i++) {
-                            if (events[i].currency1 === id) {
-                                Message.PostAll({
-                                    'setText': {
-                                        'id': '#event-item-' + i,
-                                        'value': num
-                                    }
-                                });
-                                for (var j = 0; j < events[i].bosses.length; j++) {
-                                    events[i].bosses[j].hasCurrency = num >= events[i].bosses[j].currency1;
-
-                                    var url;
-                                    if (!events[i].bosses[j].hasAP || !events[i].bosses[j].hasCurrency) {
-                                        url = events[i].url;
-                                    } else {
-                                        url = events[i].url + '/supporter/' + events[i].bossID + events[i].bosses[j].id + '/1';
-                                    }
-                                    Message.PostAll({
-                                        'setClick': {
-                                            'id': '#event-image-' + j,
-                                            'value': url
-                                        }
-                                    });
-                                }
-                            }
-                        }
-                    });
-                }
-            }
-            // todo: what the fuck
-            APBP.GetAP(function (num) {
-                for (var i = 0; i < events.length; i++) {
-                    for (var j = 0; j < events[i].bosses.length; j++) {
-                        events[i].bosses[j].hasAP = num >= events[i].bosses[j].ap;
-
-                        var url;
-                        if (!events[i].bosses[j].hasAP || !events[i].bosses[j].hasCurrency) {
-                            url = events[i].url;
-                        } else {
-                            url = events[i].url + '/supporter/' + events[i].bossID + events[i].bosses[j].id + '/1';
-                        }
-                        Message.PostAll({
-                            'setClick': {
-                                'id': '#event-image-' + j,
-                                'value': url
-                            }
-                        });
-                    }
-                }
-            });
         },
         InitializeDev: function () {
             var response = [];
@@ -532,23 +496,7 @@
                     }
                 });
             }
-            //setQuestsJQuery();
-            for (var i = 0; i < events.length; i++) {
-                response.push({
-                    'setText': {
-                        'id': '#event-item-' + i,
-                        'value': Supplies.Get(events[i].currency1, 'event')
-                    }
-                });
-                for (var j = 0; j < events[i].bosses.length; j++) {
-                    response.push({
-                        'setClick': {
-                            'id': '#event-image-' + j,
-                            'value': events[i].bosses[j].url
-                        }
-                    });
-                }
-            }
+
             for (var i = 0; i < raidList.length; i++) {
                 response.push({
                     'hideObject': {
@@ -594,21 +542,6 @@
                         if (raidInfo[id].animeIDs !== null && payload.use_item_id !== undefined) {
                             var index = raidInfo[id].animeIDs.indexOf(payload.use_item_id);
                             Supplies.Increment(raidInfo[id].animeIDs[index], '10', -raidInfo[id].animeCounts[index]);
-                        }
-                    }
-                    for (var i = 0; i < events.length; i++) {
-                        if (events[i].bossID !== null) {
-                            for (var j = 0; j < events[i].bosses.length; j++) {
-                                if (id === (events[i].bossID + events[i].bosses[j].id)) {
-                                    APBP.InitializeQuest({'action_point': events[i].bosses[j].ap});
-                                    if (events[i].currency1 !== null) {
-                                        Supplies.Increment(events[i].currency1, '10', -events[i].bosses[j].currency1);
-                                    }
-                                    if (events[i].currency2 !== null) {
-                                        Supplies.Increment(events[i].currency2, '10', -events[i].bosses[j].currency2);
-                                    }
-                                }
-                            }
                         }
                     }
                 }
