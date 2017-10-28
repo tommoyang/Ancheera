@@ -417,7 +417,7 @@
             selectedNextAssaultTimeHour = assaultTimes[0] + 1;
         } else if (currentHour >= assaultTimes[1] && currentHour < assaultTimes[1] + 1) {
             isAssaultTime = true;
-            selectedNextAssaultTimeHour = assaultTimes[1];
+            selectedNextAssaultTimeHour = assaultTimes[1] + 1;
         } else {
             isAssaultTime = false;
             if (assaultTimes[1] === -1) {
@@ -425,7 +425,7 @@
                     nextAssaultTime = null;
                     return;
                 } else {
-                    selectedNextAssaultTimeHour = assaultTimes[0], 0, 0, 0;
+                    selectedNextAssaultTimeHour = assaultTimes[0];
                 }
             } else {
                 if (currentHour < assaultTimes[0] && currentHour < assaultTimes[1]) {
