@@ -1,10 +1,10 @@
 (function () {
-    var apTracker = new ApTracker();
-    var bpTracker = new BpTracker();
+    const apTracker = new ApTracker();
+    const bpTracker = new BpTracker();
 
     window.APBP = {
         VerifyAPBP: function (json) {
-            var status;
+            let status;
             if (json.status !== undefined) {
                 status = json.status;
             } else if (json.mydata !== undefined) {
@@ -25,7 +25,7 @@
             apTracker.stageQuest(json.action_point);
         },
         StartQuest: function (json, payload) {
-            var id = payload.quest_id;
+            let id = payload.quest_id;
             if (id == 715571 || id == 715561 || id == 715551) {
                 apTracker.stageQuest(50);
             } else if (id == 715541) {
@@ -42,8 +42,8 @@
                 apTracker.stageQuest(0);
             }
         },
-        StartRaid: function (json, payload) {
-            bpTracker.spendBpFromJson(json, payload)
+        StartRaid: function (payload) {
+            bpTracker.spendBpFromJson(payload);
             apTracker.stageQuest(0);
         },
         RestoreAPBP: function (json) {
@@ -57,34 +57,7 @@
         },
         SetMax: function () {
             apTracker.addAp(apTracker.getMaxAp());
-            bkTracker.addBP(bpTracker.getMaxBp());
+            bpTracker.addBp(bpTracker.getMaxBp());
         }
-    }
-
-    var addAP = function (amount) {
-        apTracker.addAp(amount);
-    }
-
-    var spendBP = function (amount) {
-        bpTracker.spendBp(amount);
-    }
-
-    var setBP = function (current, max) {
-        bpTracker.setBp(current, max);
-    }
-
-    var addBP = function (amount) {
-        bpTracker.addBp(amount);
-    }
-
-    var setAP = function (curr, max) {
-        apTracker.setAp(curr, max);
-    }
-
-    var setAPTime = function () {
-        apTracker.setApTime();
-    }
-    var setBPTime = function () {
-        bpTracker.setBpTime();
     }
 })();

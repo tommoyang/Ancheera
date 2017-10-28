@@ -16,7 +16,7 @@ function performConnectPageLoad(connection) {
             connection.postMessage({
                 pageLoad: tabs[0].url
             });
-            var index = tabs[0].url.indexOf('#quest/supporter/');
+            let index = tabs[0].url.indexOf('#quest/supporter/');
             if (index !== -1) {
                 Message.PostAll({
                     'setClick': {
@@ -71,7 +71,8 @@ function performRequestAction(message) {
         Dailies.DecPrimarchs(message.request.payload);
     }
     if (message.request.url.indexOf('/quest/raid_info?') !== -1) {
-        Quest.CheckMulti(message.request.response);
+        // todo: Why do we need to know this?
+        // Quest.CheckMulti(message.request.response);
         //is_multi
     }
 
@@ -94,8 +95,8 @@ function performRequestAction(message) {
     // }
     //join raid
     if (message.request.url.indexOf('/quest/raid_deck_data_create') !== -1) {
-        APBP.StartRaid(message.request.response, message.request.payload);
-        Quest.CreateRaid(message.request.response, message.id);
+        APBP.StartRaid(message.request.payload);
+        Quest.CreateRaid(message.request.payload, message.id);
     }
     // if(message.request.url.indexOf('/check_reward/') !== -1) {
     //   Quest.CompleteQuest(message.request.url);
