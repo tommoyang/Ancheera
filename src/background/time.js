@@ -37,7 +37,8 @@
         'daily-date': null,
         'weekly-date': null,
         'monthly-date': null,
-        'assault-date-0': null
+        'assault-date-0': null,
+        'assault-date-1': null
     };
 
     // These are the only times in here adjusted for local timezone
