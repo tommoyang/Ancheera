@@ -642,26 +642,33 @@
                 currQuest.devIDs.push(devID);
             }
             var refresh = false;
+
+            var canRefresh = Options.Get('ougiRefresh');
+            var canSkip = Options.Get('skip') && Options.Get('skipNext');
+
             for (var i = 0; i < json.scenario.length; i++) {
                 if (json.scenario[i].cmd === 'win') {
                     currQuest.id = '' + json.scenario[i].raid_id;
                     if (json.scenario[i].is_last_raid) {
+                        if (json.status.bossmode) currQuest.url = currQuest.url.replace('raid', 'raid_multi');
+
                         currQuest.url = currQuest.url.replace('raid', 'result');
                         if (Options.Get('skip')) {
                             Message.Post(devID, {'openURL': currQuest.url + currQuest.id});
                             return;
                         }
                     }
-                    if (Options.Get('skip') && Options.Get('skipNext')) {
+                    if (canSkip) {
                         Message.Post(devID, {'openURL': currQuest.url + currQuest.id});
                         return;
                     }
                 }
-                if (Options.Get('ougiRefresh') && (json.scenario[i].cmd == 'special' || json.scenario[i].cmd == 'special_npc')) {
+                if (canRefresh && (json.scenario[i].cmd === 'special' || json.scenario[i].cmd === 'special_npc')) {
                     refresh = true;
                 }
             }
             if (refresh) {
+                if (json.status.bossmode) currQuest.url = currQuest.url.replace('raid', 'raid_multi');
                 Message.Post(devID, {'openURL': currQuest.url + currQuest.id});
             }
         },
