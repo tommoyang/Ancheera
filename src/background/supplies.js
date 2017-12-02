@@ -220,7 +220,6 @@
             for (var property in list) {
                 if (list.hasOwnProperty(property)) {
                     for (var i = 0; i < list[property].length; i++) {
-                        console.log(item);
                         item = list[property][i];
                         category = getCategory(item.id, item.item_kind);
                         if (category !== undefined && incrementSupply(item.id, category, 1)) {
@@ -235,7 +234,6 @@
             for (var property in list) {
                 if (list.hasOwnProperty(property)) {
                     item = list[property];
-                    console.log(item);
                     category = getCategory(item.id, '' + item.kind);
                     if (category !== undefined && incrementSupply(item.id, category, item.count)) {
                         if (updated.indexOf(category) === -1) {
@@ -245,7 +243,6 @@
                 }
             }
             for (var i = 0; i < updated.length; i++) {
-                console.log(updated);
                 saveSupply(updated[i]);
             }
         },
@@ -643,7 +640,6 @@
                 }
             });
         }
-        console.log(response);
         return response;
         //Message.Post(devID, {'generatePlanner': response});
     };
