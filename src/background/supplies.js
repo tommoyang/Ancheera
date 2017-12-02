@@ -11,11 +11,12 @@
         misc: {},
         draw: {},
         other: {}
-    }
-    var responseList = {}
+    };
+
+    var responseList = {};
     var planners = {
         current: null,
-    }
+    };
 
     var updatedSupplies = [];
     var sortedSupplies = [];
@@ -23,33 +24,6 @@
     var search = '';
     var nextUncap = null;
     var nextNpcUncap = null;
-
-    // var $supplyList = $('#supply-list');
-    // var $supplyItem = $supplyList.find('.supply-item').first().clone();
-    // $supplyList.find('.supply-item').first().remove();
-    // $searchSupplies = $("#search-supplies");
-    // $supplyCategories = $('#supply-categories');
-    // $firstCategory = $supplyCategories.children('.active');
-    // $currCategory = $firstCategory;
-
-    // $('#supply-categories > li > a').click(function() {
-    //   if($(this).data('category') !== 'all') {
-    //     search = '';
-    //     $searchSupplies.val('');
-    //   }
-    //   filterSupplies($(this).data('category'));
-    //   $currCategory = $(this).parent('li');
-    // });
-
-
-    // $searchSupplies.on('input paste', function(){
-    //   if($(this).val() !== '') {
-    //     $currCategory.removeClass('active');
-    //     $firstCategory.addClass('active');
-    //     filter = 'all';
-    //   }
-    //   searchSupplies($(this).val());
-    // });
 
     window.Supplies = {
         Initialize: function (callback) {
@@ -59,7 +33,7 @@
                 for (var i = 0; i < categories.length; i++) {
                     category = categories[i].replace('supply', '');
                     if (response[categories[i]] !== undefined) {
-                        var hash = response[categories[i]].supplies
+                        var hash = response[categories[i]].supplies;
                         for (var key in hash) {
                             if (hash.hasOwnProperty(key)) {
                                 newSupply(key, category, hash[key].count, hash[key].name, hash[key].sequence);
@@ -121,10 +95,6 @@
             }
 
             if (supplies[category][id] !== undefined) {
-
-                // if(response !== undefined) {
-                //   supplies[category][id].responseList.push(response);
-                // }
                 return supplies[category][id].count;
             }
             return 0;
@@ -189,7 +159,7 @@
                     'event': false,
                     'coop': false,
                     'misc': false
-                }
+                };
                 var id;
                 var category;
 
@@ -243,13 +213,10 @@
                 }
             }
         },
-        SetOther: function (json) {
-        },
         GetLoot: function (json) {
             var item;
             var updated = [];
             var list = json.rewards.reward_list;
-            console.log(list);
             for (var property in list) {
                 if (list.hasOwnProperty(property)) {
                     for (var i = 0; i < list[property].length; i++) {
@@ -265,7 +232,6 @@
                 }
             }
             list = json.rewards.article_list;
-            console.log(list);
             for (var property in list) {
                 if (list.hasOwnProperty(property)) {
                     item = list[property];
@@ -345,9 +311,9 @@
         },
         SellCoop: function (json, payload) {
             if (json.success) {
-                var id = payload.item_id
+                var id = payload.item_id;
                 var amt = parseInt(payload.number);
-                incrementSupply(id, 'coop', -amt)
+                incrementSupply(id, 'coop', -amt);
                 saveSupply('coop');
                 var lupi;
                 switch (id) {
@@ -416,10 +382,10 @@
             nextUncap = json.item_id;
 
         },
-        SetUncap: function (json) {
+        SetUncap: function () {
             nextUncap = null;
         },
-        Uncap: function (json) {
+        Uncap: function () {
             if (nextUncap !== null && nextUncap !== undefined) {
                 incrementSupply(nextUncap, 'powerUp', -1);
             }
@@ -475,7 +441,7 @@
                 Message.Post(devID, {'generatePlanner': buildWeapon(type, planners[type])});
             }
         }
-    }
+    };
 
     var getCategory = function (id, item_kind) {
         if (item_kind === '4') {
@@ -489,21 +455,21 @@
         } else {
             return undefined;
         }
-    }
+    };
 
     var saveSupply = function (category) {
         Storage.Set('supply' + category, {'supplies': supplies[category]});
-    }
+    };
 
     var savePlanner = function () {
         Storage.Set('planners', {'planners': planners});
-    }
+    };
 
     var saveUpdateSupply = function (id, category, number) {
         if (updateSupply(id, category, number)) {
             saveSupply(category);
         }
-    }
+    };
 
     var updateSupply = function (id, category, number) {
         var ret = false;
@@ -531,10 +497,6 @@
                     'current': number
                 }
             });
-            //$supplyList.children('#supply-' + supply.sequence + '-' + id).children('.item-count').first().text(intNum);
-            // for(var i = 0; i < supply.responseList.length; i++) {
-            //   supply.responseList[i](id, intNum);
-            // }
             if (responseList[category] !== undefined && responseList[category][id] !== undefined) {
                 for (var i = 0; i < responseList[category][id].length; i++) {
                     responseList[category][id][i](id, intNum);
@@ -543,13 +505,13 @@
             ret = true;
         }
         return ret;
-    }
+    };
 
     var incrementSupply = function (id, category, number) {
         if (supplies[category][id] !== undefined) {
             return updateSupply(id, category, supplies[category][id].count + parseInt(number));
         }
-    }
+    };
 
     var newSupply = function (id, category, number, name, sequence) {
         supplies[category][id] = {
@@ -589,7 +551,7 @@
             }
         }
         return true;
-    }
+    };
 
     var buildWeapon = function (type, build) {
         var response = [];
@@ -676,7 +638,7 @@
                         draw: 8,
                         other: 9,
                         currency: 10
-                    }
+                    };
                     return categoryHash[a.category] - categoryHash[b.category];
                 }
             });
@@ -684,29 +646,15 @@
         console.log(response);
         return response;
         //Message.Post(devID, {'generatePlanner': response});
-    }
+    };
 
     var filterSupplies = function (category) {
         filter = category;
-        // $supplyList.children().each(function(index) {
-        //   if(category === $(this).data('category') || category === 'all') {
-        //     $(this).show();
-        //   } else {
-        //     $(this).hide();
-        //   }
-        // });
-    }
+    };
 
     var searchSupplies = function (query) {
         search = query.toLowerCase();
-        // $supplyList.children().each(function(index) {
-        //   if($(this).data('name').indexOf(search) !== -1) {
-        //     $(this).show();
-        //   } else {
-        //     $(this).hide();
-        //   }
-        // });
-    }
+    };
 
     var createTooltip = function (name) {
         var tooltip = name;
@@ -716,18 +664,7 @@
             }
         }
         return tooltip;
-    }
-
-    // var setPlanner = function(category, type, element, start, end) {
-    //   if(start !== -1) {
-    //     for(var i = start; i < end; i++) {
-
-    //     }
-    //   } else {
-    //     planners[category] = {};
-    //   }
-    //   savePlanner(category);
-    // }
+    };
 
     var createPlannerCurrency = function (category, count) {
         return {
@@ -735,7 +672,7 @@
             'category': category,
             'count': count
         }
-    }
+    };
 
     var createPlannerElement = function (materialType, materialTier, count) {
         return {
@@ -744,7 +681,7 @@
             'materialTier': materialTier,
             'count': count
         }
-    }
+    };
 
     var createPlannerClass = function (materialType, count) {
         return {
@@ -752,7 +689,7 @@
             'materialType': materialType,
             'count': count
         }
-    }
+    };
 
     var createPlannerBahamut = function (materialType, count) {
         return {
@@ -760,14 +697,7 @@
             'materialType': materialType,
             'count': count
         }
-    }
-    var createPlannerSeraph = function (materialType, count) {
-        return {
-            'type': 'seraph',
-            'materialType': materialType,
-            'count': count
-        }
-    }
+    };
 
     var createPlannerRevenantFiveStar = function (materialType, count) {
         return {
@@ -775,7 +705,7 @@
             'materialType': materialType,
             'count': count
         }
-    }
+    };
 
     var createPlannerSupply = function (category, id, count) {
         return {
@@ -784,14 +714,14 @@
             'id': id,
             'count': count
         }
-    }
+    };
 
     var createSupplyInfo = function (category, id) {
         return {
             'category': category,
             'id': id
         }
-    }
+    };
 
     var plannersData = {
         'Revenant': [
@@ -1112,7 +1042,7 @@
                 ]
             },
         ]
-    }
+    };
     var createClass = function (type, avenger, skofnung, nirvana, keraunos, oliver, hellion, ipetam, rosenbogen, langeleik, romulus, faust, murakumo, muramasa, ascalon, nebuchad, kapilavastu, misericorde) {
         return {
             'Avenger': createPlannerSupply(type, avenger),
@@ -1133,7 +1063,7 @@
             'Kapilavastu': createPlannerSupply(type, kapilavastu),
             'Misericorde': createPlannerSupply(type, misericorde)
         }
-    }
+    };
 
     var createRevenantFiveStar = function (type, uno, song, sarasa, quatre, funf, six, siete, octo, nio, esser) {
         return {
@@ -1148,7 +1078,7 @@
             'Nio': createPlannerSupply(type, nio),
             'Esser': createPlannerSupply(type, esser),
         }
-    }
+    };
 
     var revenantFiveStars = {
         'shard': createRevenantFiveStar('material',
@@ -1250,7 +1180,7 @@
             '20741',
             '20711'
         ),
-    }
+    };
 
     var classes = {
         'creed': createClass('coop',
@@ -1443,7 +1373,7 @@
             '5021',
             '5041'
         ),
-    }
+    };
     var elements = {
         'orb': {
             '0': {
@@ -1657,8 +1587,8 @@
                 'Wind': createSupplyInfo('treasure', '91'),
             },
         },
-    }
-    var seraphs = {}
+    };
+
     var bahamuts = {
         'Sabre': createSupplyInfo('raid', '47'),
         'Dagger': createSupplyInfo('raid', '51'),
@@ -1670,7 +1600,7 @@
         'Melee': createSupplyInfo('raid', '49'),
         'Harp': createSupplyInfo('raid', '48'),
         'Katana': createSupplyInfo('raid', '48'),
-    }
+    };
 
     var tooltips = {
         'Satin Feather': ['1: Scattered Cargo'],
@@ -1704,7 +1634,7 @@
         'Frozen Foliole': ['74-2'],
         'Bastion Block': ['80-4', '81-1', '81-4', '82-4'],
         'Raw Gemstone': ['84-4']
-    }
+    };
     var weaponSupplyInfo = {
         "powerUp": {
             "20002": {
