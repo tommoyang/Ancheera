@@ -18,8 +18,6 @@
         current: null,
     };
 
-    var updatedSupplies = [];
-    var sortedSupplies = [];
     var filter = 'all';
     var search = '';
     var nextUncap = null;
@@ -410,7 +408,7 @@
                 saveSupply(updated[i]);
             }
         },
-        NpcUncap: function (json) {
+        NpcUncap: function () {
             var updated = [];
             var category;
             for (var i = 0; i < nextNpcUncap.length; i++) {
@@ -462,12 +460,6 @@
         Storage.Set('planners', {'planners': planners});
     };
 
-    var saveUpdateSupply = function (id, category, number) {
-        if (updateSupply(id, category, number)) {
-            saveSupply(category);
-        }
-    };
-
     var updateSupply = function (id, category, number) {
         var ret = false;
         var supply = supplies[category][id];
@@ -515,7 +507,6 @@
             name: name,
             count: parseInt(number),
             sequence: sequence,
-            //responseList: []
         };
         if (category !== 'recovery' && category !== 'powerUp' && category !== 'draw') {
             supplies.treasureHash[id] = category;
@@ -641,15 +632,6 @@
             });
         }
         return response;
-        //Message.Post(devID, {'generatePlanner': response});
-    };
-
-    var filterSupplies = function (category) {
-        filter = category;
-    };
-
-    var searchSupplies = function (query) {
-        search = query.toLowerCase();
     };
 
     var createTooltip = function (name) {
