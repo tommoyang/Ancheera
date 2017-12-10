@@ -1,59 +1,50 @@
 (function () {
-    var dailyNames = ['draw-rupie', 'tweet', 'coop'];
-    var weeklyNames = ['renown'];
-    var monthlyNames = ['moons'];
-    var drawCount = 101;
-    var coopDailies = [];
-    var tweet = true;
-    var moons = {
-        '30031': 1,
-        '30032': 1,
-        '30033': 1
-    }
-    var coopNum = 3;
+    const drawRupieStr = "drawRupie";
+    const tweetStr = "tweet";
+    const coopStr = "coop";
+    const renownStr = "renown";
+    const moonsStr = "moons";
+    const freeSingleRollStr = "freeSingleRoll";
+    const freeTenRollStr = "freeTenRoll";
+    const primatchsStr = "primarchs";
+    const distinctionsStr = "distinctions";
+    
+    let IsPlayerLevelAbove100 = false;
 
-    var isHL = false;
-
-    var renown = {
-        '1': 0,
-        '2': 0,
-        '3': 0,
-        '4': 0
-    }
-    var renownMax = {
+    let renownMax = {
         '1': 2000,
         '2': 500,
         '3': 500,
         '4': 500
     }
-    var renownIncreasedMax = {
+    let renownIncreasedMax = {
         '1': 4000,
         '2': 1000,
         '3': 1000,
         '4': 1000
     }
 //http://gbf.game.mbga.jp/?opensocial_viewer_id=132334696&token=64a1af77c9143220e437#quest/index/100012/0
-    var dailiesData = {
-        'renown': {
+    let dailiesData = {
+        renown: {
             '1': 2000,
             '2': 500,
             '3': 500,
             '4': 500
         },
-        'moons': {
+        moons: {
             '30031': 1,
             '30032': 1,
             '30033': 1
         }
     }
 
-    var dailies = {
-        'draw-rupie': 101,
-        'tweet': true,
-        'freeSingleRoll': true,
-        'freeTenRoll': true,
-        'primarchs': 2,
-        'coop': {
+    let dailies = {
+        drawRupie: 101,
+        tweet: true,
+        freeSingleRoll: true,
+        freeTenRoll: true,
+        primarchs: 2,
+        coop: {
             '0': {
                 'raw': '',
                 'quest': '???',
@@ -73,18 +64,18 @@
                 'max': ''
             },
         },
-        'renown': {
+        renown: {
             '1': 0,
             '2': 0,
             '3': 0,
             '4': 0
         },
-        'moons': {
+        moons: {
             '30031': 1,
             '30032': 1,
             '30033': 1
         },
-        'distinctions': {
+        distinctions: {
             '20411': 1,
             '20421': 1,
             '20431': 1,
@@ -104,9 +95,9 @@
             '20761': 1
         },
     }
-    var enabledDistinctionList = [];
+    let enabledDistinctionList = [];
 
-    var primarchHash = {
+    let primarchIds = {
         //michael
         '500871': true,
         '500881': true,
@@ -128,27 +119,27 @@
         '501011': true,
         '501021': true
     }
-    // var $dailiesPanel = $('#dailies-panel');
-    // var $weekliesPanel = $('#weeklies-panel');
-    // var $monthliesPanel = $('#monthlies-panel');
+    // let $dailiesPanel = $('#dailies-panel');
+    // let $weekliesPanel = $('#weeklies-panel');
+    // let $monthliesPanel = $('#monthlies-panel');
 
-    // var $coopQuests = $dailiesPanel.find('.coop-quest');
-    // var $coopProgresses = $dailiesPanel.find('.coop-progress');
-    // var $drawCount = $dailiesPanel.find('#draw-count');
-    // var $tweetStatus = $dailiesPanel.find('#tweet-status');
+    // let $coopQuests = $dailiesPanel.find('.coop-quest');
+    // let $coopProgresses = $dailiesPanel.find('.coop-progress');
+    // let $drawCount = $dailiesPanel.find('#draw-count');
+    // let $tweetStatus = $dailiesPanel.find('#tweet-status');
 
-    // var $renownPanel = $weekliesPanel.find('#renown-weekly-collapse');
+    // let $renownPanel = $weekliesPanel.find('#renown-weekly-collapse');
 
-    // var $moonPanel = $monthliesPanel.find('#moon-monthly-collapse');
+    // let $moonPanel = $monthliesPanel.find('#moon-monthly-collapse');
 
-    // var $miscellaneousCollapse = $('#misc-daily-collapse');
-    // var $coopCollapse = $('#coop-daily-collapse');
-    // var $renownCollapse = $('#renown-weekly-collapse');
-    // var $moonCollapse = $('#moon-monthly-collapse');
+    // let $miscellaneousCollapse = $('#misc-daily-collapse');
+    // let $coopCollapse = $('#coop-daily-collapse');
+    // let $renownCollapse = $('#renown-weekly-collapse');
+    // let $moonCollapse = $('#moon-monthly-collapse');
 
-    // var $prestige = $('#weekly-prestige');
+    // let $prestige = $('#weekly-prestige');
 
-    // var hidePrestige = function(rank) {
+    // let hidePrestige = function(rank) {
     //   if(rank === null || rank < 101) {
     //     isHL = false;
     //     //$prestige.hide();
@@ -165,20 +156,20 @@
 
             Options.Get('increasedRenownLimit', function (id, value) {
                 increaseRenown(value);
-                var array = [];
+                let array = [];
                 Object.keys(dailies.renown).forEach(function (key) {
-                    array.push(['renown', key], dailies.renown[key]);
+                    array.push([renownStr, key], dailies.renown[key]);
                 });
                 setDailies(array, true);
             });
-            var hide = Options.Get('freeSingleRoll', function (id, value) {
+            let hide = Options.Get(freeSingleRollStr, function (id, value) {
                 Message.PostAll({
                     'hideObject': {
                         'id': '#dailies-freeSingleRoll-Panel',
                         'value': !value
                     }
                 });
-                setDailies([['freeSingleRoll'], dailies['freeSingleRoll']], true);
+                setDailies([[freeSingleRollStr], dailies[freeSingleRollStr]], true);
             });
             Options.Get('primarchDaily', function (id, value) {
                 Message.PostAll({
@@ -187,12 +178,12 @@
                         'value': !value
                     }
                 });
-                setDailies([['primarchs'], dailies['primarchs']], true);
+                setDailies([[primatchsStr], dailies[primatchsStr]], true);
             });
             Object.keys(dailies.distinctions).forEach(function (key) {
                 Options.Get(key, function (id, value) {
                     id = id[0];
-                    var index = enabledDistinctionList.indexOf(id)
+                    let index = enabledDistinctionList.indexOf(id)
                     console.log(id);
                     console.log(enabledDistinctionList);
                     if (value && index === -1) {
@@ -237,12 +228,12 @@
                             'value': !value
                         }
                     });
-                    setDailies([['distinctions', id], dailies.distinctions[id]], true);
+                    setDailies([[distinctionsStr, id], dailies.distinctions[id]], true);
                 });
             });
             Profile.Get('level', function (value) {
-                if (!isHL && value >= 101) {
-                    isHL = true;
+                if (!IsPlayerLevelAbove100 && value >= 101) {
+                    IsPlayerLevelAbove100 = true;
                     Message.PostAll({
                         'hideObject': {
                             'id': '#weekly-prestige',
@@ -255,8 +246,8 @@
             Storage.GetMultiple(['dailies'], function (response) {
 
                 if (response['dailies'] !== undefined) {
-                    if (response['dailies']['primarchs'] === undefined) {
-                        for (var key in dailies) {
+                    if (response['dailies'][primatchsStr] === undefined) {
+                        for (let key in dailies) {
                             if (response['dailies'][key] == undefined) {
                                 response['dailies'][key] = dailies[key];
                             }
@@ -276,13 +267,13 @@
         },
         InitializeDev: function () {
             // Object.keys(dailies.renown).forEach(function(key) {
-            //       array.push(['renown', key], dailies.renown[key]);
+            //       array.push([renownStr, key], dailies.renown[key]);
             //   });
             increaseRenown(Options.Get('increasedRenownLimit'));
             Message.PostAll({
                 'hideObject': {
                     'id': '#dailies-freeSingleRoll-Panel',
-                    'value': !Options.Get('freeSingleRoll')
+                    'value': !Options.Get(freeSingleRollStr)
                 }
             });
             Message.PostAll({
@@ -292,13 +283,13 @@
                 }
             });
 
-            var response = [];
-            var checking = false;
+            let response = [];
+            let checking = false;
             if (enabledDistinctionList.length == 0) {
                 checking = true;
             }
             Object.keys(dailies.distinctions).forEach(function (key) {
-                var enabled = Options.Get(key);
+                let enabled = Options.Get(key);
                 if (checking && enabled) {
                     enabledDistinctionList.push(key);
                 }
@@ -317,7 +308,7 @@
                     'value': Math.ceil(enabledDistinctionList.length / 4) * 47
                 }
             });
-            if (enabledDistinctionList.length === 0 || !isHL) {
+            if (enabledDistinctionList.length === 0 || !IsPlayerLevelAbove100) {
                 response.push({
                     'hideObject': {
                         'id': '#distinction-dailies',
@@ -339,96 +330,88 @@
             response.push({
                 'hideObject': {
                     'id': '#weekly-prestige',
-                    'value': !isHL
+                    'value': !IsPlayerLevelAbove100
                 }
             });
 
             return response;
         },
         Reset: function () {
-            var array = [['draw-rupie'], 101, ['tweet'], true, ['freeSingleRoll'], true, ['freeTenRoll'], true, ['primarchs'], 2];
+            let array = [[drawRupieStr], 101, [tweetStr], true, [freeSingleRollStr], true, [freeTenRollStr], true, [primatchsStr], 2];
             Object.keys(dailies.coop).forEach(function (key) {
-                array.push(['coop', key, 'raw'], '');
-                array.push(['coop', key, 'quest'], '???');
-                array.push(['coop', key, 'max'], '');
-                array.push(['coop', key, 'progress'], '');
+                array.push([coopStr, key, 'raw'], '');
+                array.push([coopStr, key, 'quest'], '???');
+                array.push([coopStr, key, 'max'], '');
+                array.push([coopStr, key, 'progress'], '');
             });
             Object.keys(dailies.distinctions).forEach(function (key) {
-                array.push(['distinctions', key], 1);
+                array.push([distinctionsStr, key], 1);
             });
             setDailies(array);
             Casino.Reset();
             Quest.Reset();
         },
         WeeklyReset: function () {
-            var array = [];
-            var name;
-            for (var i = 0; i < weeklyNames.length; i++) {
-                name = weeklyNames[i];
-                Object.keys(dailies[name]).forEach(function (key) {
-                    array.push([name, key], 0);
-                });
-            }
+            let array = [];
+            Object.keys(dailies[renownStr]).forEach(function (key) {
+                array.push([renownStr, key], 0);
+            });
             setDailies(array);
         },
         MonthlyReset: function () {
-            var array = [];
-            var namem;
-            for (var i = 0; i < monthlyNames.length; i++) {
-                name = monthlyNames[i];
-                Object.keys(dailies[name]).forEach(function (key) {
-                    array.push([name, key], dailiesData[name][key]);
-                });
-            }
+            let array = [];
+            Object.keys().forEach(function (key) {
+                array.push([moonsStr, dailies[moonsStr]], dailiesData[moonsStr][key]);
+            });
             setDailies(array);
             Casino.MonthlyReset();
         },
         SetDraws: function (json) {
             if (json.user_info.is_free) {
-                setDailies([['draw-rupie'], 101]);
+                setDailies([[drawRupieStr], 101]);
             } else {
-                setDailies([['draw-rupie'], json.user_info.free_count]);
+                setDailies([[drawRupieStr], json.user_info.free_count]);
             }
         },
         DecDraws: function (json) {
             if (json.gacha[0].name === 'Rupie Draw') {
-                setDailies([['draw-rupie'], dailies['draw-rupie'] - json.count]);
+                setDailies([[drawRupieStr], dailies[drawRupieStr] - json.count]);
             }
         },
         SetCoop: function (json) {
-            var description;
-            var array = [];
-            var key;
-            for (var i = 0; i < json.daily_mission.length; i++) {
+            let description;
+            let array = [];
+            let key;
+            for (let i = 0; i < json.daily_mission.length; i++) {
                 description = json.daily_mission[i].description;
                 key = '' + i;
-                array.push(['coop', key, 'raw'], description);
-                array.push(['coop', key, 'quest'], parseDescription(description));
-                array.push(['coop', key, 'max'], parseInt(json.daily_mission[i].max_progress));
-                array.push(['coop', key, 'progress'], parseInt(json.daily_mission[i].progress));
+                array.push([coopStr, key, 'raw'], description);
+                array.push([coopStr, key, 'quest'], parseDescription(description));
+                array.push([coopStr, key, 'max'], parseInt(json.daily_mission[i].max_progress));
+                array.push([coopStr, key, 'progress'], parseInt(json.daily_mission[i].progress));
             }
             setDailies(array);
         },
         CompleteCoop: function (json) {
             if (json.url === 'coopraid') {
-                var list = json.popup_data.coop_daily_mission;
+                let list = json.popup_data.coop_daily_mission;
                 if (list.length > 0) {
-                    var exists;
-                    var array = [];
-                    for (var i = 0; i < list.length; i++) {
-                        var keys = Object.keys(dailies.coop);
-                        for (var j = 0; j < keys.length; j++) {
+                    let exists;
+                    let array = [];
+                    for (let i = 0; i < list.length; i++) {
+                        let keys = Object.keys(dailies.coop);
+                        for (let j = 0; j < keys.length; j++) {
                             key = keys[j];
                             if (dailies.coop[key].quest !== '???') {
                                 if (dailies.coop[key].raw === list[i].description) {
-                                    array.push(['coop', key, 'progress'], parseInt(list[i].progress));
+                                    array.push([coopStr, key, 'progress'], parseInt(list[i].progress));
                                     break;
                                 }
                             } else {
-                                array.push(['coop', key, 'raw'], list[i].description);
-                                array.push(['coop', key, 'quest'], parseDescription(list[i].description));
-                                array.push(['coop', key, 'max'], parseInt(list[i].max_progress));
-                                array.push(['coop', key, 'progress'], parseInt(list[i].progress));
+                                array.push([coopStr, key, 'raw'], list[i].description);
+                                array.push([coopStr, key, 'quest'], parseDescription(list[i].description));
+                                array.push([coopStr, key, 'max'], parseInt(list[i].max_progress));
+                                array.push([coopStr, key, 'progress'], parseInt(list[i].progress));
                                 break;
                             }
                         }
@@ -438,92 +421,92 @@
             }
         },
         CompleteRaid: function (json) {
-            var path;
-            var id;
-            var array = [];
+            let path;
+            let id;
+            let array = [];
             if (!Array.isArray(json.mbp_info) && json.mbp_info !== undefined && json.mbp_info.add_result !== undefined) {
                 Object.keys(json.mbp_info.add_result).forEach(function (key) {
                     path = json.mbp_info.add_result[key];
                     id = '' + path.mbp_id;
-                    array.push(['renown', id], dailies.renown[id] + parseInt(path.add_point));
+                    array.push([renownStr, id], dailies.renown[id] + parseInt(path.add_point));
                 });
             }
             setDailies(array);
         },
         CheckRenown: function (json) {
-            var array = [];
+            let array = [];
             if (json.option !== undefined) {
                 json = json.option;
             }
-            var hash = json.mbp_limit_info['92001'].limit_info;
+            let hash = json.mbp_limit_info['92001'].limit_info;
             Object.keys(hash).forEach(function (key) {
-                array.push(['renown', '' + hash[key].param.mbp_id], parseInt(hash[key].data.weekly.get_number));
+                array.push([renownStr, '' + hash[key].param.mbp_id], parseInt(hash[key].data.weekly.get_number));
             });
-            var path = json.mbp_limit_info['92002'].limit_info['10100'];
-            array.push(['renown', '' + path.param.mbp_id], parseInt(path.data.weekly.get_number));
+            let path = json.mbp_limit_info['92002'].limit_info['10100'];
+            array.push([renownStr, '' + path.param.mbp_id], parseInt(path.data.weekly.get_number));
             setDailies(array);
         },
         CheckTweet: function (json) {
             if (json.twitter.campaign_info.is_avail_twitter !== undefined) {
                 if (json.twitter.campaign_info.is_avail_twitter === true) {
-                    setDailies([['tweet'], true]);
+                    setDailies([[tweetStr], true]);
                 } else {
-                    setDailies([['tweet'], false]);
+                    setDailies([[tweetStr], false]);
                 }
             }
         },
         UseTweet: function (json) {
             if (json.reward_status === true) {
                 APBP.SetMax();
-                setDailies([['tweet'], false]);
+                setDailies([[tweetStr], false]);
             }
         },
         PurchaseMoon: function (json) {
-            var id = json.article.item_ids[0];
+            let id = json.article.item_ids[0];
             if (id === '30031' || id === '30032' || id === '30033') {
-                setDailies(['moons', id], 0);
+                setDailies([moonsStr, id], 0);
             }
         },
         CheckMoons: function (json) {
-            var id;
-            var amounts = {'30031': 0, '30032': 0, '30033': 0};
-            for (var i = 0; i < json.list.length; i++) {
+            let id;
+            let amounts = {'30031': 0, '30032': 0, '30033': 0};
+            for (let i = 0; i < json.list.length; i++) {
                 id = json.list[i].item_ids[0];
                 if (id === '30031' || id === '30032' || id === '30033') {
                     amounts[id] = 1;
                 }
             }
             Object.keys(amounts).forEach(function (key) {
-                setDailies([['moons', key], amounts[key]]);
+                setDailies([[moonsStr, key], amounts[key]]);
             });
         },
         CheckGacha: function (json) {
-            var canRoll = false;
+            let canRoll = false;
             if (json.enable_term_free_legend !== undefined && json.enable_term_free_legend !== false) {
                 canRoll = true;
             } else if (json.enable_term_free_legend_10 !== undefined && json.enable_term_free_legend_10 !== false) {
                 canRoll = true;
             }
-            setDailies([['freeSingleRoll'], canRoll]);
+            setDailies([[freeSingleRollStr], canRoll]);
         },
         RollCampaign: function (json, header) {
-            setDailies([['freeSingleRoll'], false]);
+            setDailies([[freeSingleRollStr], false]);
         },
         PurchaseDistinction: function (json) {
-            var id = json.article.item_ids[0];
+            let id = json.article.item_ids[0];
             if (dailies.distinctions[id] !== undefined) {
-                setDailies([['distinctions', id], 0]);
+                setDailies([[distinctionsStr, id], 0]);
             }
         },
         SetDistinctions: function (json) {
-            var keys = Object.keys(json.list);
-            var ids = {};
-            var first = -1;
-            var last = -1;
-            var found = false;
-            for (var i = 0; i < keys.length; i++) {
+            let keys = Object.keys(json.list);
+            let ids = {};
+            let first = -1;
+            let last = -1;
+            let found = false;
+            for (let i = 0; i < keys.length; i++) {
                 //if start hasn't been determined
-                var id = json.list[keys[i]].item_ids[0];
+                let id = json.list[keys[i]].item_ids[0];
                 if (dailies.distinctions[id] !== undefined) {
                     ids[id] = true;
                     found = true;
@@ -541,18 +524,18 @@
                 }
             }
             if (found) {
-                var distinctions = Object.keys(dailies.distinctions);
-                // var start = 0;
+                let distinctions = Object.keys(dailies.distinctions);
+                // let start = 0;
                 // if(!pre) {
                 //   start = distinctions.indexOf(ids[0]);
                 // }
-                // var end = distinctions.length;
-                var array = [];
-                for (var i = 0; i < distinctions.length; i++) {
-                    var id = distinctions[i];
+                // let end = distinctions.length;
+                let array = [];
+                for (let i = 0; i < distinctions.length; i++) {
+                    let id = distinctions[i];
                     if (parseInt(id) >= first && parseInt(id) <= last) {
                         if (ids[id] === undefined) {
-                            array.push(['distinctions', id], 0);
+                            array.push([distinctionsStr, id], 0);
                         }
                     }
                 }
@@ -561,26 +544,26 @@
         },
         SetPrimarchs: function (json) {
             if (json.option.quest.extra_normal_quest) {
-                var primarchJson = json.option.quest.extra_normal_quest.quest_list.host_group['3000'];
-                setDailies([['primarchs'], primarchJson.group_limited_count]);
+                let primarchJson = json.option.quest.extra_normal_quest.quest_list.host_group['3000'];
+                setDailies([[primatchsStr], primarchJson.group_limited_count]);
             }
         },
         DecPrimarchs: function (payload) {
-            if (primarchHash['' + payload.quest_id]) {
-                setDailies([['primarchs'], dailies['primarchs'] - 1]);
+            if (primarchIds['' + payload.quest_id]) {
+                setDailies([[primatchsStr], dailies[primatchsStr] - 1]);
             }
         }
     }
     function setDailies(array, override) {
-        var category;
-        var value;
-        var updated = false;
-        for (var i = 0; i < array.length; i += 2) {
+        let category;
+        let value;
+        let updated = false;
+        for (let i = 0; i < array.length; i += 2) {
             category = array[i];
             value = array[i + 1];
-            var curr = dailies;
-            var cat = category;
-            for (var j = 0; j < category.length - 1; j++) {
+            let curr = dailies;
+            let cat = category;
+            for (let j = 0; j < category.length - 1; j++) {
                 curr = curr[category[j]];
             }
             cat = category[category.length - 1];
@@ -600,31 +583,31 @@
     }
 
     function checkCollapse(category) {
-        var collapse = true;
-        if (category[0] === 'draw-rupie' || category[0] === 'tweet' || category[0] === 'freeSingleRoll' || category[0] === 'primarchs') {
+        let collapse = true;
+        if (category[0] === drawRupieStr || category[0] === tweetStr || category[0] === freeSingleRollStr || category[0] === primatchsStr) {
             category[0] = 'misc';
-            if (dailies['draw-rupie'] !== 0 || dailies['tweet']) {
+            if (dailies[drawRupieStr] !== 0 || dailies[tweetStr]) {
                 collapse = false;
-            } else if (Options.Get('freeSingleRoll') && dailies['freeSingleRoll']) {
+            } else if (Options.Get(freeSingleRollStr) && dailies[freeSingleRollStr]) {
                 collapse = false;
-            } else if (Options.Get('primarchDaily') && dailies['primarchs'] !== 0) {
+            } else if (Options.Get('primarchDaily') && dailies[primatchsStr] !== 0) {
                 collapse = false;
             }
-        } else if (category[0] === 'coop') {
-            var coop;
-            var coops = Object.keys(dailies['coop']);
-            for (var i = 0; i < coops.length; i++) {
-                coop = dailies['coop'][coops[i]];
+        } else if (category[0] === coopStr) {
+            let coop;
+            let coops = Object.keys(dailies[coopStr]);
+            for (let i = 0; i < coops.length; i++) {
+                coop = dailies[coopStr][coops[i]];
                 if (coop.quest === '???' || coop.progress !== coop.max) {
                     collapse = false;
                     break;
                 }
             }
-        } else if (category[0] === 'renown') {
-            var cat = category[0];
-            var array = Object.keys(dailies[cat]);
-            for (var i = 0; i < array.length; i++) {
-                if (!(array[i] === '4' && !isHL) && array[i] !== '5' && array[i] !== '6') {
+        } else if (category[0] === renownStr) {
+            let cat = category[0];
+            let array = Object.keys(dailies[cat]);
+            for (let i = 0; i < array.length; i++) {
+                if (!(array[i] === '4' && !IsPlayerLevelAbove100) && array[i] !== '5' && array[i] !== '6') {
                     if (dailies[cat][array[i]] !== dailiesData[cat][array[i]]) {
                         collapse = false;
                         break;
@@ -632,19 +615,19 @@
                 }
 
             }
-        } else if (category[0] === 'moons') {
-            var cat = category[0];
-            var array = Object.keys(dailies[cat]);
-            for (var i = 0; i < array.length; i++) {
+        } else if (category[0] === moonsStr) {
+            let cat = category[0];
+            let array = Object.keys(dailies[cat]);
+            for (let i = 0; i < array.length; i++) {
                 if (dailies[cat][array[i]] === dailiesData[cat][array[i]]) {
                     collapse = false;
                     break;
                 }
             }
-        } else if (category[0] === 'distinctions') {
-            var cat = category[0];
-            var array = Object.keys(dailies[cat]);
-            for (var i = 0; i < array.length; i++) {
+        } else if (category[0] === distinctionsStr) {
+            let cat = category[0];
+            let array = Object.keys(dailies[cat]);
+            for (let i = 0; i < array.length; i++) {
                 if (dailies[cat][array[i]] === 1 && Options.Get(array[i])) {
                     console.log('failing collapse on: ' + dailies[cat][array[i]] + ' ' + Options.Get(array[i]));
                     collapse = false;
@@ -652,7 +635,7 @@
                 }
             }
         }
-        var id = '#collapse-dailies-' + category[0];
+        let id = '#collapse-dailies-' + category[0];
         return {
             'collapsePanel': {
                 'id': id,
@@ -663,18 +646,18 @@
     
     //constructs 'setText' object to be passed to UI, inline comments for construct ids [MD]
     function getJquery(category) {
-        var id = '#dailies'
-        var value = dailies;
-        var str = '';
-        if (category[0] === 'draw-rupie') { // dailies-draw-rupie
+        let id = '#dailies'
+        let value = dailies;
+        let str = '';
+        if (category[0] === drawRupieStr) { // dailies-drawRupie
             str += 'Rupie draws: ';
-        } else if (category[0] === 'tweet') { // dailies-tweet
+        } else if (category[0] === tweetStr) { // dailies-tweet
             str += 'Tweet refill: ';
-        } else if (category[0] === 'freeSingleRoll') { // dailies-freeSingleRoll
+        } else if (category[0] === freeSingleRollStr) { // dailies-freeSingleRoll
             str += 'Free Gacha Roll: ';
-        } else if (category[0] === 'primarchs') { // dailies-primarchs
+        } else if (category[0] === primatchsStr) { // dailies-primarchs
             str += 'Primarchs: ';
-        } else if (category[0] === 'coop') { 
+        } else if (category[0] === coopStr) { 
             // dailies-coop-0-quest, dailies-coop-0-progress
             // dailies-coop-1-quest, dailies-coop-1-progress
             // dailies-coop-2-quest, dailies-coop-2-progress
@@ -682,7 +665,7 @@
                 return undefined;
             }
         }
-        for (var i = 0; i < category.length; i++) {
+        for (let i = 0; i < category.length; i++) {
             // dailies-renown-1, dailies-renown-2, dailies-renown-4, dailies-renown-3
             // dailies-moons-30031, dailies-moons-30032, dailies-moons-30033
             id += '-' + category[i];
@@ -700,9 +683,9 @@
             }
             if (dailiesData[category[0]] !== undefined) {
                 str += '/' + dailiesData[category[0]][category[1]];
-            } else if (category[0] === 'coop' && value !== '' && category[2] === 'progress') {
+            } else if (category[0] === coopStr && value !== '' && category[2] === 'progress') {
                 str += '/' + dailies[category[0]][category[1]]['max'];
-            } else if (category[0] === 'distinctions') {
+            } else if (category[0] === distinctionsStr) {
                 str += '/1'
             }
         }
@@ -719,7 +702,7 @@
         if (typeof category !== 'object') {
             return getJquery(array);
         } else {
-            var response = [];
+            let response = [];
             Object.keys(category).forEach(function (key) {
                 response = response.concat(recursiveSearch(category[key], array.concat(key)));
             })
@@ -745,7 +728,7 @@
     }
 
     function increaseRenown(isIncreased) {
-        for (var key in renownMax) {
+        for (let key in renownMax) {
             if (renownMax.hasOwnProperty(key)) {
                 if (isIncreased) {
                     dailiesData.renown[key] = renownIncreasedMax[key];
