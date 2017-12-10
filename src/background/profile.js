@@ -231,7 +231,7 @@
                 tuples['lupi'] = parseInt(json.mydata.possessed.lupi);
                 tuples['crystal'] = parseInt(json.mydata.possessed.stone);
                 setProfileData(tuples);
-            } else if (json.option !== undefined && json.option.mydata_assets !== undefined) {
+            } else if (json.option !== undefined && json.option.mydata_assets !== undefined && json.option.mydata_assets.mydata !== undefined && json.option.mydata_assets.mydata.possessed !== undefined) {
                 tuples['lupi'] = parseInt(json.option.mydata_assets.mydata.possessed.lupi);
                 tuples['crystal'] = parseInt(json.option.mydata_assets.mydata.possessed.stone);
                 setProfileData(tuples);
