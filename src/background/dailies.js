@@ -570,37 +570,8 @@
                 setDailies([['primarchs'], dailies['primarchs'] - 1]);
             }
         }
-        // PurchaseDefense: function(json) {
-        //   // var id = json.article.item_ids[0];
-        //   // if(id === '30031' || id === '30032' || id === '30033') {
-        //   //   if(setMoon(id, 0)) {
-        //   //     saveMoons();
-        //   //   }
-        //   // }
-        // },
-        // CheckDefense: function(json, url) {
-        //   var id;
-        //   var amounts;
-        //   switch(url.substring(url.lastIndexOf('/') + 1, url.indexOf('?'))) {
-        //     case '1':
-        //       amounts = {'1356': 0, '1357': 0};
-        //       break;
-        //     case '2':
-        //       amounts = {'1368': 0};
-        //       break;
-        //     case '3':
-        //       amounts = {'1381': 0};
-        //       break;
-        //   }
-        //   for(var i = 0; i < json.list.length; i++) {
-        //     id = json.list[i].id;
-        //     if(amounts[id] !== undefined) {
-        //       amounts[id] = json.list[i].remain_number;
-        //     }
-        //   }
-        // },
     }
-    function setDailies(array, override) {//category, value) {
+    function setDailies(array, override) {
         var category;
         var value;
         var updated = false;
@@ -689,24 +660,31 @@
             }
         };
     }
+    
+    //constructs 'setText' object to be passed to UI, inline comments for construct ids [MD]
     function getJquery(category) {
         var id = '#dailies'
         var value = dailies;
         var str = '';
-        if (category[0] === 'draw-rupie') {
+        if (category[0] === 'draw-rupie') { // dailies-draw-rupie
             str += 'Rupie draws: ';
-        } else if (category[0] === 'tweet') {
+        } else if (category[0] === 'tweet') { // dailies-tweet
             str += 'Tweet refill: ';
-        } else if (category[0] === 'freeSingleRoll') {
+        } else if (category[0] === 'freeSingleRoll') { // dailies-freeSingleRoll
             str += 'Free Gacha Roll: ';
-        } else if (category[0] === 'primarchs') {
+        } else if (category[0] === 'primarchs') { // dailies-primarchs
             str += 'Primarchs: ';
-        } else if (category[0] === 'coop') {
+        } else if (category[0] === 'coop') { 
+            // dailies-coop-0-quest, dailies-coop-0-progress
+            // dailies-coop-1-quest, dailies-coop-1-progress
+            // dailies-coop-2-quest, dailies-coop-2-progress
             if (category[2] === 'raw' || category[2] === 'max') {
                 return undefined;
             }
         }
         for (var i = 0; i < category.length; i++) {
+            // dailies-renown-1, dailies-renown-2, dailies-renown-4, dailies-renown-3
+            // dailies-moons-30031, dailies-moons-30032, dailies-moons-30033
             id += '-' + category[i];
             if (value !== undefined) {
                 value = value[category[i]];
