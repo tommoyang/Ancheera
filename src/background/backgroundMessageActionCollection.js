@@ -211,11 +211,6 @@ function performRequestAction(message) {
     if (message.request.url.indexOf('/shop_exchange/article_list/5/1/1/null/null/null?') !== -1 || message.request.url.indexOf('/shop_exchange/article_list/5/1/1/null/null/3?') !== -1) {
         Dailies.CheckMoons(message.request.response);
     }
-    //do shop
-    if (message.request.url.indexOf('/shop_exchange/article_list/10/1/1/null/null/') !== -1) {
-        Profile.SetDefense(message.request.response);
-        //Dailies.CheckDefense(message.request.response, message.request.url);
-    }
     //prestige
     if (message.request.url.indexOf('/shop_exchange/article_list/6/1/') !== -1) {
         Dailies.SetDistinctions(message.request.response);

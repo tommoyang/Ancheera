@@ -12,20 +12,7 @@
     }
     var coopNum = 3;
 
-    //var defenseRank = 1;
     var isHL = false;
-    // var defenseShop = {
-    //   '1356': 5,
-    //   '1357': 5,
-    //   '1368': 1,
-    //   '1381': 1
-    // }
-    // var defenseMax = {
-    //   '1356': 5,
-    //   '1357': 5,
-    //   '1368': 1,
-    //   '1381': 1
-    // }
 
     var renown = {
         '1': 0,
@@ -53,12 +40,6 @@
             '3': 500,
             '4': 500
         },
-        // 'defense' :{
-        //   '1356': 5,
-        //   '1357': 5,
-        //   '1368': 1,
-        //   '1381': 1
-        // },
         'moons': {
             '30031': 1,
             '30032': 1,
@@ -98,12 +79,6 @@
             '3': 0,
             '4': 0
         },
-        // 'defense': {
-        //   '1356': 5,
-        //   '1357': 5,
-        //   '1368': 1,
-        //   '1381': 1
-        // },
         'moons': {
             '30031': 1,
             '30032': 1,
@@ -162,7 +137,6 @@
     // var $drawCount = $dailiesPanel.find('#draw-count');
     // var $tweetStatus = $dailiesPanel.find('#tweet-status');
 
-    // var $defensePanel = $weekliesPanel.find('#defense-weekly-collapse');
     // var $renownPanel = $weekliesPanel.find('#renown-weekly-collapse');
 
     // var $moonPanel = $monthliesPanel.find('#moon-monthly-collapse');
@@ -170,12 +144,9 @@
     // var $miscellaneousCollapse = $('#misc-daily-collapse');
     // var $coopCollapse = $('#coop-daily-collapse');
     // var $renownCollapse = $('#renown-weekly-collapse');
-    // var $defenseCollapse = $('#defense-weekly-collapse');
     // var $moonCollapse = $('#moon-monthly-collapse');
 
     // var $prestige = $('#weekly-prestige');
-    // var $defenseThree = $('#defense-three');
-    // var $defenseTwo = $('#defense-two');
 
     // var hidePrestige = function(rank) {
     //   if(rank === null || rank < 101) {
@@ -186,21 +157,6 @@
     //     //$prestige.show();
     //   }
     //   checkRenown();
-    // }
-
-    // var hideDefenseShop = function(rank) {
-    //   defenseRank = rank;
-    //   if(rank === null || rank < 3) {
-    //     //$defenseThree.hide();
-    //   } else if(rank === 3) {
-    //     //$defenseThree.show();
-    //   }
-    //   if(rank === null || rank < 2) {
-    //     //$defenseTwo.hide();
-    //   } else if(rank >= 2) {
-    //     //$defenseTwo.show();
-    //   }
-    //   checkDefenseShop();
     // }
 
 
@@ -317,7 +273,6 @@
                     callback();
                 }
             });
-            // Profile.Get('defenseRank', hideDefenseShop);
         },
         InitializeDev: function () {
             // Object.keys(dailies.renown).forEach(function(key) {
@@ -643,12 +598,9 @@
         //       amounts[id] = json.list[i].remain_number;
         //     }
         //   }
-        //   Object.keys(amounts).forEach(function(key) {
-        //     setDailies([['defense', key], amounts[key]]);
-        //   });
         // },
     }
-    var setDailies = function (array, override) {//category, value) {
+    function setDailies(array, override) {//category, value) {
         var category;
         var value;
         var updated = false;
@@ -676,7 +628,7 @@
         }
     }
 
-    var checkCollapse = function (category) {
+    function checkCollapse(category) {
         var collapse = true;
         if (category[0] === 'draw-rupie' || category[0] === 'tweet' || category[0] === 'freeSingleRoll' || category[0] === 'primarchs') {
             category[0] = 'misc';
@@ -737,7 +689,7 @@
             }
         };
     }
-    var getJquery = function (category) {
+    function getJquery(category) {
         var id = '#dailies'
         var value = dailies;
         var str = '';
@@ -785,7 +737,7 @@
         };
     }
 
-    var recursiveSearch = function (category, array) {
+    function recursiveSearch(category, array) {
         if (typeof category !== 'object') {
             return getJquery(array);
         } else {
@@ -797,7 +749,7 @@
         }
     }
 
-    var parseDescription = function (description) {
+    function parseDescription(description) {
         newDescription = "";
         if (description.indexOf('stage') !== -1) {
             newDescription = "Clear " + description.substring(description.indexOf('stage') + 8, description.lastIndexOf(' ', description.lastIndexOf('time') - 2));
@@ -814,7 +766,7 @@
         return newDescription;
     }
 
-    var increaseRenown = function (isIncreased) {
+    function increaseRenown(isIncreased) {
         for (var key in renownMax) {
             if (renownMax.hasOwnProperty(key)) {
                 if (isIncreased) {
