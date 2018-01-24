@@ -596,10 +596,10 @@
                     }
                 });
             }
+
             if (quest !== null && quest.id === id) {
                 quest.image = enemyImageURL + json.boss.param[0].cjs.substring(json.boss.param[0].cjs.lastIndexOf('_') + 1) + '.png';
                 currQuest = quest;
-
             } else {
                 var exists = false;
                 var image = enemyImageURL + json.boss.param[0].cjs.substring(json.boss.param[0].cjs.lastIndexOf('_') + 1) + '.png';
@@ -622,7 +622,7 @@
             }
             setQuestsJQuery();
         },
-        BattleAction: function (json, payload, devID) {
+        BattleAction: function (json, payload, devID, multiRaid) {
             if (json.popup !== undefined) {
                 return;
             }
@@ -643,7 +643,7 @@
             }
             var refresh = false;
 
-            if (json.status.bossmode) currQuest.url = currQuest.url.replace('raid/', 'raid_multi/');
+            if (multiRaid) currQuest.url = currQuest.url.replace('raid/', 'raid_multi/');
 
             var canRefresh = Options.Get('ougiRefresh');
             var canSkip = Options.Get('skip');

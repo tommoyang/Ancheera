@@ -269,7 +269,7 @@ function performRequestAction(message) {
         Quest.StartBattle(message.request.response, message.id);
     }
     if (message.request.url.indexOf('/normal_attack_result.json?_=') !== -1 || message.request.url.indexOf('/ability_result.json?_=') !== -1 || message.request.url.indexOf('/summon_result.json?_=') !== -1) {
-        Quest.BattleAction(message.request.response, message.request.payload, message.id);
+        Quest.BattleAction(message.request.response, message.request.payload, message.id, /multiraid/.test(message.request.url));
     }
     if (message.request.url.indexOf('/quest/init_list') !== -1) {
         Quest.SetCurrentQuest(message.request.response);
